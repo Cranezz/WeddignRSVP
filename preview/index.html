@@ -1,0 +1,1096 @@
+<title>Wedding RSVP — Design Preview</title>
+
+<style>
+/* ============================================================
+   TOKENS
+   Deliberately single-theme: this is a letterpress invitation.
+   The palette is locked across light/dark so the card stock
+   never inverts into something that isn't the printed piece.
+   ============================================================ */
+:root,
+:root[data-theme="dark"],
+:root[data-theme="light"] {
+  --oxblood:      #6A1F2B;
+  --oxblood-deep: #4A1520;
+  --oxblood-dark: #3A1018;
+  --cream:        #F2E6D2;
+  --lace:         #FAF4E9;
+  --ink:          #33261E;
+  --ink-soft:     #6E5C4E;
+  --brass:        #A8875A;
+  --brass-pale:   #C9AE83;
+
+  --f-script:  'Snell Roundhand', 'Apple Chancery', 'Segoe Script', 'Brush Script MT', Georgia, serif;
+  --f-display: Didot, 'Bodoni 72', 'Bodoni MT', 'Hoefler Text', Garamond, 'Times New Roman', serif;
+  --f-caps:    Optima, Candara, 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
+  --f-body:    'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+
+  --measure: 33rem;
+  --r: 15px;                 /* scallop radius */
+  color-scheme: only light;
+}
+
+@media (prefers-color-scheme: dark) { :root { color-scheme: only light; } }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #7A2733 0%, var(--oxblood) 38%, var(--oxblood-deep) 100%)
+    fixed,
+    var(--oxblood-deep);
+  color: var(--cream);
+  font-family: var(--f-body);
+  font-size: 17px;
+  line-height: 1.62;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   SHARED PIECES
+   ============================================================ */
+
+.wrap { width: min(100% - 1.75rem, var(--measure)); margin-inline: auto; }
+
+/* Scallop die-cut. Circles tiled along the edges, unioned with two
+   inset rectangles. The rectangles inset less than one radius so the
+   `round` tile adjustment can never open a notch in a valley. */
+.card {
+  background: var(--oxblood);
+  padding: calc(var(--r) * 1.55);
+  -webkit-mask:
+    radial-gradient(closest-side, #000 98%, #0000 100%)
+      0 0 / calc(var(--r) * 2) calc(var(--r) * 2) round,
+    linear-gradient(#000, #000) 50% 50% / calc(100% - var(--r) * 1.6) 100% no-repeat,
+    linear-gradient(#000, #000) 50% 50% / 100% calc(100% - var(--r) * 1.6) no-repeat;
+  mask:
+    radial-gradient(closest-side, #000 98%, #0000 100%)
+      0 0 / calc(var(--r) * 2) calc(var(--r) * 2) round,
+    linear-gradient(#000, #000) 50% 50% / calc(100% - var(--r) * 1.6) 100% no-repeat,
+    linear-gradient(#000, #000) 50% 50% / 100% calc(100% - var(--r) * 1.6) no-repeat;
+  filter: drop-shadow(0 18px 34px rgba(24, 6, 10, .45));
+}
+
+/* Eyelet-lace band: a grid of pierced holes ringing the cream panel,
+   with a hairline brass rule holding the inner field. */
+.panel {
+  background:
+    radial-gradient(circle 2.1px, rgba(148,120,92,.32) 98%, #0000 100%)
+      0 0 / 11px 11px,
+    var(--lace);
+  padding: 15px;
+  border-radius: 3px;
+}
+.field {
+  background: var(--cream);
+  border: 1px solid rgba(168,135,90,.5);
+  outline: 1px solid rgba(250,244,233,.6);
+  outline-offset: 2px;
+  color: var(--ink);
+  padding: clamp(1.6rem, 6vw, 2.6rem) clamp(1.1rem, 5vw, 2rem);
+  text-align: center;
+}
+
+.eyebrow {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .32em;
+  font-size: .68rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.eyebrow.on-dark { color: var(--brass-pale); }
+
+h2.sec-title {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(1.65rem, 6vw, 2.3rem);
+  letter-spacing: .01em;
+  margin: .35rem 0 0;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+/* Brass rule with a diamond at its centre — the section divider. */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  justify-content: center;
+  margin: 1.1rem auto 1.5rem;
+  max-width: 15rem;
+  color: var(--brass);
+}
+.rule::before, .rule::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, #0000, currentColor, #0000);
+}
+.rule i { width: 5px; height: 5px; rotate: 45deg; background: currentColor; }
+
+.section { padding: clamp(2.5rem, 9vw, 4.5rem) 0; }
+
+/* ============================================================
+   PREVIEW BANNER + NAV
+   ============================================================ */
+
+.preview-bar {
+  background: var(--oxblood-dark);
+  border-bottom: 1px solid rgba(168,135,90,.35);
+  color: var(--brass-pale);
+  font-family: var(--f-caps);
+  font-size: .7rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: .55rem 1rem;
+  line-height: 1.5;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(58, 16, 24, .93);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  border-bottom: 1px solid rgba(168,135,90,.3);
+}
+nav ul {
+  display: flex;
+  gap: 1.4rem;
+  list-style: none;
+  margin: 0 auto;
+  padding: .8rem 1.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  width: max-content;
+  max-width: 100%;
+}
+nav ul::-webkit-scrollbar { display: none; }
+nav a {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .66rem;
+  color: var(--brass-pale);
+  text-decoration: none;
+  white-space: nowrap;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #0000;
+}
+nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(--brass); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero { padding: clamp(1.75rem, 6vw, 3.25rem) 0 clamp(1rem, 4vw, 2rem); }
+
+.hero .field { padding-block: clamp(2.4rem, 9vw, 3.75rem); }
+
+.invited {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .3em;
+  font-size: .66rem;
+  color: var(--ink-soft);
+  margin: 0 0 1.4rem;
+}
+
+.names {
+  font-family: var(--f-script);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(3rem, 15vw, 4.6rem);
+  line-height: .95;
+  color: var(--ink);
+  margin: 0;
+  text-wrap: balance;
+}
+.names .amp {
+  display: block;
+  font-family: var(--f-display);
+  font-style: italic;
+  font-size: .38em;
+  color: var(--brass);
+  margin: .15em 0;
+}
+
+.hero-date {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .26em;
+  font-size: .78rem;
+  color: var(--ink);
+  margin: 1.6rem 0 .4rem;
+}
+.hero-place {
+  font-family: var(--f-body);
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0;
+  font-size: .95rem;
+}
+
+/* Countdown */
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .35rem;
+  margin: 2rem auto 1.75rem;
+  max-width: 21rem;
+}
+.cd-cell {
+  border-left: 1px solid rgba(168,135,90,.4);
+  padding: 0 .2rem;
+}
+.cd-cell:first-child { border-left: 0; }
+.cd-num {
+  font-family: var(--f-display);
+  font-size: clamp(1.35rem, 6vw, 1.8rem);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.cd-lab {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: .55rem;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+  display: inline-block;
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .22em;
+  font-size: .72rem;
+  padding: .95rem 2.1rem;
+  border: 1px solid var(--oxblood);
+  background: var(--oxblood);
+  color: var(--lace);
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background .18s ease, color .18s ease;
+}
+.btn:hover, .btn:focus-visible { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
+.btn.ghost { background: #0000; color: var(--oxblood); }
+.btn.ghost:hover, .btn.ghost:focus-visible { background: var(--oxblood); color: var(--lace); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, textarea:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   SCHEDULE
+   ============================================================ */
+
+.schedule { text-align: left; display: grid; gap: 0; margin-top: .5rem; }
+.slot {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: 1rem;
+  padding: .85rem 0;
+  border-top: 1px solid rgba(168,135,90,.35);
+  align-items: baseline;
+}
+.slot:first-child { border-top: 0; }
+.slot time {
+  font-family: var(--f-caps);
+  font-size: .74rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+.slot b {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 1.08rem;
+  color: var(--ink);
+  display: block;
+}
+.slot span { font-size: .87rem; color: var(--ink-soft); }
+
+/* ============================================================
+   DETAIL BLOCKS
+   ============================================================ */
+
+.stack { display: grid; gap: 1.35rem; text-align: left; }
+.stack p { margin: 0; color: var(--ink); }
+.lede { color: var(--ink-soft); font-size: .95rem; }
+
+.detail-h {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  font-size: .68rem;
+  color: var(--brass);
+  margin: 0 0 .3rem;
+}
+
+.registry { display: grid; gap: .55rem; }
+.reg-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: .85rem 1rem;
+  border: 1px solid rgba(168,135,90,.45);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: var(--f-caps);
+  font-size: .78rem;
+  letter-spacing: .1em;
+  transition: background .18s ease;
+}
+.reg-link:hover, .reg-link:focus-visible { background: rgba(168,135,90,.13); }
+.reg-link em { font-style: normal; color: var(--brass); font-size: 1.1rem; line-height: 1; }
+
+/* ============================================================
+   RSVP
+   ============================================================ */
+
+.rsvp-step[hidden] { display: none; }
+
+.input, .select, .textarea {
+  width: 100%;
+  font-family: var(--f-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--lace);
+  border: 1px solid rgba(168,135,90,.55);
+  border-radius: 2px;
+  padding: .75rem .85rem;
+}
+.textarea { min-height: 4.5rem; resize: vertical; }
+
+.code-input {
+  text-align: center;
+  font-family: var(--f-caps);
+  font-size: 1.5rem;
+  letter-spacing: .5em;
+  text-indent: .5em;
+  text-transform: uppercase;
+  padding: .9rem .5rem;
+}
+
+.form-row { display: grid; gap: .4rem; text-align: left; }
+.form-row > label {
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: .63rem;
+  color: var(--ink-soft);
+}
+
+.msg {
+  font-size: .85rem;
+  color: var(--oxblood);
+  font-style: italic;
+  min-height: 1.2em;
+  margin: .6rem 0 0;
+}
+
+.demo-codes {
+  margin-top: 1.6rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed rgba(168,135,90,.5);
+  font-size: .78rem;
+  color: var(--ink-soft);
+  text-align: left;
+}
+.demo-codes p { margin: 0 0 .5rem; }
+.demo-codes button {
+  font-family: var(--f-caps);
+  font-size: .7rem;
+  letter-spacing: .14em;
+  background: #0000;
+  border: 1px solid rgba(168,135,90,.5);
+  color: var(--oxblood);
+  padding: .3rem .6rem;
+  margin: 0 .3rem .3rem 0;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.demo-codes button:hover { background: rgba(168,135,90,.15); }
+
+/* Party card */
+.greeting {
+  font-family: var(--f-script);
+  font-style: italic;
+  font-size: clamp(1.9rem, 8vw, 2.5rem);
+  color: var(--ink);
+  line-height: 1.1;
+  margin: 0 0 .4rem;
+}
+.entitlement {
+  background: rgba(168,135,90,.14);
+  border-left: 2px solid var(--brass);
+  padding: .8rem 1rem;
+  text-align: left;
+  font-size: .9rem;
+  color: var(--ink);
+  margin: 1.2rem 0 1.6rem;
+}
+.entitlement strong { font-weight: 600; }
+
+.guest-block {
+  border-top: 1px solid rgba(168,135,90,.4);
+  padding: 1.1rem 0;
+  text-align: left;
+  display: grid;
+  gap: .8rem;
+}
+.guest-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.guest-name { font-family: var(--f-display); font-size: 1.12rem; color: var(--ink); }
+
+.toggle { display: inline-flex; border: 1px solid rgba(168,135,90,.55); border-radius: 2px; overflow: hidden; }
+.toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.toggle label {
+  font-family: var(--f-caps);
+  font-size: .64rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: .5rem .9rem;
+  cursor: pointer;
+  color: var(--ink-soft);
+  background: var(--lace);
+}
+.toggle label + label { border-left: 1px solid rgba(168,135,90,.45); }
+.toggle input:checked + label { background: var(--oxblood); color: var(--lace); }
+.toggle input:focus-visible + label { outline: 2px solid var(--brass); outline-offset: -2px; }
+
+.kid-row { display: flex; align-items: center; gap: .6rem; padding: .3rem 0; }
+.kid-row input { width: 1.05rem; height: 1.05rem; accent-color: var(--oxblood); }
+.kid-row label { font-size: .92rem; color: var(--ink); }
+
+.sub { font-size: .78rem; color: var(--ink-soft); font-style: italic; }
+
+/* Wax seal */
+.seal {
+  width: 72px; height: 72px;
+  margin: 0 auto 1.2rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #8E2C3A, var(--oxblood) 55%, var(--oxblood-dark));
+  box-shadow: inset 0 0 0 3px rgba(168,135,90,.4), 0 6px 14px rgba(24,6,10,.4);
+  display: grid;
+  place-items: center;
+  font-family: var(--f-script);
+  font-style: italic;
+  font-size: 1.7rem;
+  color: var(--brass-pale);
+}
+
+/* FAQ */
+.faq { text-align: left; }
+.faq details {
+  border-top: 1px solid rgba(168,135,90,.4);
+  padding: .2rem 0;
+}
+.faq details:last-of-type { border-bottom: 1px solid rgba(168,135,90,.4); }
+.faq summary {
+  cursor: pointer;
+  list-style: none;
+  padding: .9rem 1.6rem .9rem 0;
+  font-family: var(--f-display);
+  font-size: 1.02rem;
+  color: var(--ink);
+  position: relative;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  position: absolute;
+  right: .2rem;
+  top: .8rem;
+  color: var(--brass);
+  font-family: var(--f-caps);
+  font-size: 1.1rem;
+}
+.faq details[open] summary::after { content: "\2013"; }
+.faq details p { margin: 0 0 1rem; font-size: .92rem; color: var(--ink-soft); }
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 3rem 1.25rem 3.5rem;
+  color: var(--brass-pale);
+}
+footer p { margin: .35rem 0; font-size: .85rem; }
+footer a { color: var(--lace); }
+
+/* Reveal on scroll */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="preview-bar">
+  Design preview · every name, date, time and link below is placeholder copy
+</div>
+
+<nav>
+  <ul>
+    <li><a href="#day">The Day</a></li>
+    <li><a href="#where">Where</a></li>
+    <li><a href="#wear">What to Wear</a></li>
+    <li><a href="#rsvp">RSVP</a></li>
+    <li><a href="#registry">Registry</a></li>
+    <li><a href="#faq">Questions</a></li>
+  </ul>
+</nav>
+
+<!-- ========================= HERO ========================= -->
+<header class="hero wrap">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="invited">Please join us for the wedding of</p>
+
+        <h1 class="names">Selena<span class="amp">and</span>Oliver</h1>
+
+        <p class="hero-date">Saturday, the Fifteenth of May · Two Thousand Twenty-Seven</p>
+        <p class="hero-place">Wedding Palace · 232 Chestnut Street, Philadelphia</p>
+
+        <div class="countdown" id="countdown" aria-label="Time remaining until the wedding">
+          <div class="cd-cell"><div class="cd-num" id="cd-d">—</div><div class="cd-lab">Days</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-h">—</div><div class="cd-lab">Hours</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-m">—</div><div class="cd-lab">Minutes</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-s">—</div><div class="cd-lab">Seconds</div></div>
+        </div>
+
+        <a class="btn" href="#rsvp">Reply to your invitation</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ========================= THE DAY ========================= -->
+<section class="section wrap reveal" id="day">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">Saturday, May 15th</p>
+        <h2 class="sec-title">The Day</h2>
+        <div class="rule"><i></i></div>
+
+        <div class="schedule">
+          <div class="slot">
+            <time>4:30</time>
+            <div><b>Guests arrive</b><span>Doors open in the garden court. Please be seated by ten of five.</span></div>
+          </div>
+          <div class="slot">
+            <time>5:00</time>
+            <div><b>Ceremony</b><span>Outdoors on the south lawn, weather permitting.</span></div>
+          </div>
+          <div class="slot">
+            <time>5:45</time>
+            <div><b>Cocktail hour</b><span>Terrace and conservatory. Portraits during this time.</span></div>
+          </div>
+          <div class="slot">
+            <time>7:00</time>
+            <div><b>Dinner</b><span>Seated in the Grand Hall. Toasts to follow.</span></div>
+          </div>
+          <div class="slot">
+            <time>8:30</time>
+            <div><b>Dancing</b><span>First dance, then the floor is yours.</span></div>
+          </div>
+          <div class="slot">
+            <time>11:00</time>
+            <div><b>Send-off</b><span>Sparklers at the front drive.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= WHERE ========================= -->
+<section class="section wrap reveal" id="where">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">Philadelphia, Pennsylvania</p>
+        <h2 class="sec-title">Where to Find Us</h2>
+        <div class="rule"><i></i></div>
+
+        <div class="stack">
+          <div>
+            <p class="detail-h">The venue</p>
+            <p>Wedding Palace<br>232 Chestnut Street<br>Philadelphia, PA 19106</p>
+          </div>
+          <a class="btn ghost" href="#where" onclick="return false;">Open in maps</a>
+
+          <div>
+            <p class="detail-h">Parking</p>
+            <p class="lede">Complimentary valet at the Chestnut Street entrance. A public garage sits one block west on Third.</p>
+          </div>
+
+          <div>
+            <p class="detail-h">Where to stay</p>
+            <p class="lede">We have held a block of rooms at two nearby hotels through April 15th. Mention the wedding when you book.</p>
+          </div>
+
+          <div>
+            <p class="detail-h">Getting here</p>
+            <p class="lede">Philadelphia International is a twenty-minute drive. 30th Street Station is fifteen minutes by cab.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= WHAT TO WEAR ========================= -->
+<section class="section wrap reveal" id="wear">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">Black tie optional</p>
+        <h2 class="sec-title">What to Wear</h2>
+        <div class="rule"><i></i></div>
+
+        <div class="stack">
+          <p>Tuxedos and floor-length gowns are very welcome. A dark suit and tie, or a cocktail dress, is equally at home.</p>
+          <div>
+            <p class="detail-h">One practical note</p>
+            <p class="lede">The ceremony is on grass. Block heels or flats will serve you better than stilettos.</p>
+          </div>
+          <div>
+            <p class="detail-h">Children</p>
+            <p class="lede">Children are warmly welcome at both the ceremony and the reception. Please list every child who will attend when you reply, so we can set a place for them.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= RSVP ========================= -->
+<section class="section wrap reveal" id="rsvp">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+
+        <!-- STEP 1 -->
+        <div class="rsvp-step" id="step-code">
+          <p class="eyebrow">Kindly reply by the first of April</p>
+          <h2 class="sec-title">RSVP</h2>
+          <div class="rule"><i></i></div>
+
+          <p class="lede" style="margin:0 0 1.4rem;">Scanning the code on your invitation signs you in automatically. If you are typing it yourself, the four characters are printed beneath the code.</p>
+
+          <form id="code-form" novalidate>
+            <div class="form-row">
+              <label for="code">Your invitation code</label>
+              <input class="input code-input" id="code" name="code" maxlength="4"
+                     autocomplete="off" autocapitalize="characters" spellcheck="false"
+                     inputmode="text" placeholder="····">
+            </div>
+            <p class="msg" id="code-msg" role="status"></p>
+            <button class="btn" type="submit">Find my invitation</button>
+          </form>
+
+          <div class="demo-codes">
+            <p><strong>Preview:</strong> three sample invitations, each with different permissions.</p>
+            <button type="button" data-try="A4K2">A4K2 — family, children invited</button>
+            <button type="button" data-try="B7R9">B7R9 — one seat, plus one allowed</button>
+            <button type="button" data-try="C3M6">C3M6 — one seat only</button>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="rsvp-step" id="step-party" hidden>
+          <p class="eyebrow">Your invitation</p>
+          <h2 class="greeting" id="greeting"></h2>
+          <div class="rule"><i></i></div>
+
+          <div class="entitlement" id="entitlement"></div>
+
+          <form id="party-form" novalidate>
+            <div id="guests"></div>
+
+            <div class="guest-block">
+              <div class="form-row">
+                <label for="notes">Allergies or dietary needs</label>
+                <textarea class="textarea" id="notes" placeholder="Anything the kitchen should know"></textarea>
+              </div>
+            </div>
+
+            <div class="guest-block">
+              <div class="form-row">
+                <label for="song">A song that will get you dancing</label>
+                <input class="input" id="song" placeholder="Artist — Title">
+              </div>
+            </div>
+
+            <div class="guest-block">
+              <div class="form-row">
+                <label for="email">Email for your confirmation</label>
+                <input class="input" id="email" type="email" placeholder="you@example.com">
+              </div>
+            </div>
+
+            <p class="msg" id="party-msg" role="status"></p>
+            <button class="btn" type="submit">Send our reply</button>
+            <p class="sub" style="margin-top:.9rem;">You can come back and change your answer any time before the first of April.</p>
+          </form>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="rsvp-step" id="step-done" hidden>
+          <div class="seal" aria-hidden="true">S&amp;O</div>
+          <p class="eyebrow">Received</p>
+          <h2 class="sec-title" id="done-title">Thank you</h2>
+          <div class="rule"><i></i></div>
+          <p id="done-body" style="color:var(--ink);"></p>
+          <p class="sub" style="margin-bottom:1.4rem;">A confirmation is on its way to your inbox.</p>
+          <button class="btn ghost" type="button" id="restart">Change our reply</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= REGISTRY ========================= -->
+<section class="section wrap reveal" id="registry">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">With gratitude</p>
+        <h2 class="sec-title">Registry</h2>
+        <div class="rule"><i></i></div>
+
+        <p class="lede" style="margin:0 0 1.4rem;">Your presence is the gift. For those who have asked, we have registered in a few places.</p>
+
+        <div class="registry">
+          <a class="reg-link" href="#registry" onclick="return false;">Crate &amp; Barrel <em>&rarr;</em></a>
+          <a class="reg-link" href="#registry" onclick="return false;">Williams Sonoma <em>&rarr;</em></a>
+          <a class="reg-link" href="#registry" onclick="return false;">Honeymoon fund <em>&rarr;</em></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= FAQ ========================= -->
+<section class="section wrap reveal" id="faq">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">Before you ask</p>
+        <h2 class="sec-title">Questions</h2>
+        <div class="rule"><i></i></div>
+
+        <div class="faq">
+          <details>
+            <summary>Can I bring a guest?</summary>
+            <p>Your invitation says so directly. Enter your code above and it will tell you exactly how many seats are held in your name.</p>
+          </details>
+          <details>
+            <summary>Are children invited?</summary>
+            <p>Yes. Children are welcome at the ceremony and the reception. Please name each child when you reply so the kitchen and the seating chart account for them.</p>
+          </details>
+          <details>
+            <summary>What if my plans change?</summary>
+            <p>Come back to this page, enter your code again, and update your answer. Anything before the first of April is no trouble at all.</p>
+          </details>
+          <details>
+            <summary>Is the ceremony outdoors?</summary>
+            <p>Yes, on the south lawn. The conservatory is our rain plan and holds everyone comfortably.</p>
+          </details>
+          <details>
+            <summary>When should I arrive?</summary>
+            <p>Doors open at half past four. Please be seated by ten minutes to five.</p>
+          </details>
+          <details>
+            <summary>May I take photographs?</summary>
+            <p>During the ceremony we ask that phones stay away so our photographer has a clear view. Afterwards, please take as many as you like.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="seal" aria-hidden="true">S&amp;O</div>
+  <p>Questions we haven't answered? Write to <a href="#faq" onclick="return false;">hello@example.com</a></p>
+  <p style="opacity:.65;">Selena &amp; Oliver · May 15, 2027</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Countdown ---------- */
+  var target = new Date("2027-05-15T17:00:00").getTime();
+  var els = {
+    d: document.getElementById("cd-d"), h: document.getElementById("cd-h"),
+    m: document.getElementById("cd-m"), s: document.getElementById("cd-s")
+  };
+  function pad(n) { return n < 10 ? "0" + n : String(n); }
+  function tick() {
+    var left = target - Date.now();
+    if (left < 0) left = 0;
+    var sec = Math.floor(left / 1000);
+    els.d.textContent = Math.floor(sec / 86400);
+    els.h.textContent = pad(Math.floor(sec / 3600) % 24);
+    els.m.textContent = pad(Math.floor(sec / 60) % 60);
+    els.s.textContent = pad(sec % 60);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------- Sample guest list ----------
+     In the real site this lookup happens on the server so the guest
+     list is never shipped to the browser. Inlined here only so the
+     preview can demonstrate the three permission cases. */
+  var GUESTS = {
+    A4K2: {
+      greeting: "The Whitfield Family",
+      adults: ["Marcus Whitfield", "Elena Whitfield"],
+      children: ["Nora Whitfield", "Theo Whitfield"],
+      plusOne: false
+    },
+    B7R9: {
+      greeting: "Dana Reyes",
+      adults: ["Dana Reyes"],
+      children: [],
+      plusOne: true
+    },
+    C3M6: {
+      greeting: "Samuel Okafor",
+      adults: ["Samuel Okafor"],
+      children: [],
+      plusOne: false
+    }
+  };
+
+  var MEALS = ["Filet of beef", "Roasted halibut", "Wild mushroom risotto (v)"];
+
+  var steps = {
+    code: document.getElementById("step-code"),
+    party: document.getElementById("step-party"),
+    done: document.getElementById("step-done")
+  };
+  function show(name) {
+    Object.keys(steps).forEach(function (k) { steps[k].hidden = (k !== name); });
+    steps[name].scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  var codeInput = document.getElementById("code");
+  var codeMsg = document.getElementById("code-msg");
+  var current = null;
+
+  document.getElementById("code-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    lookup(codeInput.value);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-try]"), function (b) {
+    b.addEventListener("click", function () {
+      codeInput.value = b.getAttribute("data-try");
+      lookup(codeInput.value);
+    });
+  });
+
+  function lookup(raw) {
+    var code = String(raw || "").trim().toUpperCase();
+    var party = GUESTS[code];
+    if (!party) {
+      codeMsg.textContent = code
+        ? "We couldn't find that code. Check the four characters on your invitation, or write to us and we'll sort it out."
+        : "Please enter the four characters printed on your invitation.";
+      return;
+    }
+    codeMsg.textContent = "";
+    current = party;
+    render(party);
+    show("party");
+  }
+
+  function render(party) {
+    document.getElementById("greeting").textContent = party.greeting;
+
+    var seats = party.adults.length + (party.plusOne ? 1 : 0);
+    var lines = ["<strong>" + seats + (seats === 1 ? " seat is" : " seats are") + " held in your name.</strong>"];
+    if (party.plusOne) lines.push("You are welcome to bring a guest — add their name below.");
+    if (party.children.length) {
+      lines.push("Your children are invited: " + party.children.join(" and ") + ".");
+    } else {
+      lines.push("This invitation is for adults only. We hope that gives you an evening off.");
+    }
+    document.getElementById("entitlement").innerHTML = lines.join("<br>");
+
+    var host = document.getElementById("guests");
+    host.innerHTML = "";
+
+    party.adults.forEach(function (name, i) { host.appendChild(guestBlock(name, "a" + i)); });
+
+    if (party.plusOne) {
+      var block = guestBlock("Your guest", "p0", true);
+      host.appendChild(block);
+    }
+
+    if (party.children.length) {
+      var kids = document.createElement("div");
+      kids.className = "guest-block";
+      var head = document.createElement("p");
+      head.className = "detail-h";
+      head.textContent = "Children attending";
+      kids.appendChild(head);
+      party.children.forEach(function (name, i) {
+        var row = document.createElement("div");
+        row.className = "kid-row";
+        var cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.id = "kid" + i;
+        cb.checked = true;
+        var lb = document.createElement("label");
+        lb.setAttribute("for", "kid" + i);
+        lb.textContent = name;
+        row.appendChild(cb);
+        row.appendChild(lb);
+        kids.appendChild(row);
+      });
+      var note = document.createElement("p");
+      note.className = "sub";
+      note.textContent = "Untick anyone who won't be joining us.";
+      kids.appendChild(note);
+      host.appendChild(kids);
+    }
+  }
+
+  function guestBlock(name, key, isPlusOne) {
+    var wrap = document.createElement("div");
+    wrap.className = "guest-block";
+
+    var head = document.createElement("div");
+    head.className = "guest-head";
+
+    var label = document.createElement("div");
+    label.className = "guest-name";
+    label.textContent = name;
+    head.appendChild(label);
+
+    var toggle = document.createElement("div");
+    toggle.className = "toggle";
+    toggle.setAttribute("role", "group");
+    toggle.setAttribute("aria-label", "Will " + name + " attend?");
+    [["yes", "Joyfully accepts"], ["no", "Regretfully declines"]].forEach(function (opt) {
+      var id = key + "-" + opt[0];
+      var input = document.createElement("input");
+      input.type = "radio";
+      input.name = key;
+      input.id = id;
+      input.value = opt[0];
+      if (opt[0] === "yes" && !isPlusOne) input.checked = true;
+      var lb = document.createElement("label");
+      lb.setAttribute("for", id);
+      lb.textContent = opt[1];
+      toggle.appendChild(input);
+      toggle.appendChild(lb);
+      input.addEventListener("change", function () {
+        extras.hidden = (input.value === "no");
+      });
+    });
+    head.appendChild(toggle);
+    wrap.appendChild(head);
+
+    var extras = document.createElement("div");
+    extras.className = "form-row";
+    extras.style.gap = ".7rem";
+
+    if (isPlusOne) {
+      var nameRow = document.createElement("div");
+      nameRow.className = "form-row";
+      nameRow.innerHTML =
+        '<label for="' + key + '-name">Your guest\'s full name</label>' +
+        '<input class="input" id="' + key + '-name" placeholder="First and last name">';
+      extras.appendChild(nameRow);
+    }
+
+    var mealRow = document.createElement("div");
+    mealRow.className = "form-row";
+    var mealLabel = document.createElement("label");
+    mealLabel.setAttribute("for", key + "-meal");
+    mealLabel.textContent = "Dinner choice";
+    var sel = document.createElement("select");
+    sel.className = "select";
+    sel.id = key + "-meal";
+    MEALS.forEach(function (m) {
+      var o = document.createElement("option");
+      o.textContent = m;
+      sel.appendChild(o);
+    });
+    mealRow.appendChild(mealLabel);
+    mealRow.appendChild(sel);
+    extras.appendChild(mealRow);
+
+    if (isPlusOne) extras.hidden = true;
+    wrap.appendChild(extras);
+    return wrap;
+  }
+
+  document.getElementById("party-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var yes = document.querySelectorAll('#guests input[type="radio"][value="yes"]:checked').length;
+    var kids = document.querySelectorAll('#guests input[type="checkbox"]:checked').length;
+
+    var title = document.getElementById("done-title");
+    var body = document.getElementById("done-body");
+
+    if (yes + kids === 0) {
+      title.textContent = "We'll miss you";
+      body.textContent = "Thank you for letting us know. We're sorry you can't be there, and we'll raise a glass to you.";
+    } else {
+      title.textContent = "We can't wait";
+      var parts = [yes + (yes === 1 ? " seat" : " seats")];
+      if (kids) parts.push(kids + (kids === 1 ? " child" : " children"));
+      body.textContent = "You're down for " + parts.join(" and ") +
+        " on Saturday, May 15th. Doors open at half past four.";
+    }
+    show("done");
+  });
+
+  document.getElementById("restart").addEventListener("click", function () {
+    if (current) { render(current); show("party"); }
+    else show("code");
+  });
+
+  /* ---------- Reveal on scroll ---------- */
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { rootMargin: "0px 0px -12% 0px" });
+    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (el) { io.observe(el); });
+  } else {
+    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (el) { el.classList.add("in"); });
+  }
+})();
+</script>
