@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#4A1520">
-<meta name="description" content="Wedding details and RSVP.">
-<title>Selena &amp; Oliver &middot; May 15, 2027</title>
+<meta name="description" content="Wedding details and RSVP for Logan and Mary Lou.">
+<title>Logan &amp; Mary Lou &middot; June 19, 2027</title>
 <style>
 /* ============================================================
    TOKENS
@@ -108,7 +108,6 @@ body {
   color: var(--ink-soft);
   margin: 0;
 }
-.eyebrow.on-dark { color: var(--brass-pale); }
 
 h2.sec-title {
   font-family: var(--f-display);
@@ -141,7 +140,7 @@ h2.sec-title {
 .section { padding: clamp(2.5rem, 9vw, 4.5rem) 0; }
 
 /* ============================================================
-   PREVIEW BANNER + NAV
+   STATUS BANNER + NAV
    ============================================================ */
 
 .preview-bar {
@@ -196,7 +195,6 @@ nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(
    ============================================================ */
 
 .hero { padding: clamp(1.75rem, 6vw, 3.25rem) 0 clamp(1rem, 4vw, 2rem); }
-
 .hero .field { padding-block: clamp(2.4rem, 9vw, 3.75rem); }
 
 .invited {
@@ -212,8 +210,8 @@ nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(
   font-family: var(--f-script);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(3rem, 15vw, 4.6rem);
-  line-height: .95;
+  font-size: clamp(2.5rem, 12vw, 4rem);
+  line-height: 1.02;
   color: var(--ink);
   margin: 0;
   text-wrap: balance;
@@ -243,7 +241,6 @@ nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(
   font-size: .95rem;
 }
 
-/* Countdown */
 .countdown {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -251,10 +248,7 @@ nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(
   margin: 2rem auto 1.75rem;
   max-width: 21rem;
 }
-.cd-cell {
-  border-left: 1px solid rgba(168,135,90,.4);
-  padding: 0 .2rem;
-}
+.cd-cell { border-left: 1px solid rgba(168,135,90,.4); padding: 0 .2rem; }
 .cd-cell:first-child { border-left: 0; }
 .cd-num {
   font-family: var(--f-display);
@@ -293,7 +287,6 @@ nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(
 .btn:hover, .btn:focus-visible { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
 .btn.ghost { background: #0000; color: var(--oxblood); }
 .btn.ghost:hover, .btn.ghost:focus-visible { background: var(--oxblood); color: var(--lace); }
-.btn[disabled] { opacity: .45; cursor: not-allowed; }
 
 a:focus-visible, button:focus-visible, input:focus-visible,
 select:focus-visible, textarea:focus-visible, summary:focus-visible {
@@ -349,24 +342,6 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   margin: 0 0 .3rem;
 }
 
-.registry { display: grid; gap: .55rem; }
-.reg-link {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: .85rem 1rem;
-  border: 1px solid rgba(168,135,90,.45);
-  color: var(--ink);
-  text-decoration: none;
-  font-family: var(--f-caps);
-  font-size: .78rem;
-  letter-spacing: .1em;
-  transition: background .18s ease;
-}
-.reg-link:hover, .reg-link:focus-visible { background: rgba(168,135,90,.13); }
-.reg-link em { font-style: normal; color: var(--brass); font-size: 1.1rem; line-height: 1; }
-
 /* ============================================================
    RSVP
    ============================================================ */
@@ -385,16 +360,6 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 }
 .textarea { min-height: 4.5rem; resize: vertical; }
 
-.code-input {
-  text-align: center;
-  font-family: var(--f-caps);
-  font-size: 1.5rem;
-  letter-spacing: .5em;
-  text-indent: .5em;
-  text-transform: uppercase;
-  padding: .9rem .5rem;
-}
-
 .form-row { display: grid; gap: .4rem; text-align: left; }
 .form-row > label {
   font-family: var(--f-caps);
@@ -411,8 +376,27 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   min-height: 1.2em;
   margin: .6rem 0 0;
 }
+.msg a { color: var(--oxblood); }
 
-.demo-codes {
+/* Multiple-match chooser */
+.matches { display: grid; gap: .5rem; text-align: left; margin: 1.2rem 0 0; }
+.match {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: .8rem 1rem;
+  border: 1px solid rgba(168,135,90,.5);
+  background: var(--lace);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: .95rem;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.match:hover { background: rgba(168,135,90,.15); }
+.match small { display: block; color: var(--ink-soft); font-size: .78rem; }
+
+.demo-note {
   margin-top: 1.6rem;
   padding-top: 1.1rem;
   border-top: 1px dashed rgba(168,135,90,.5);
@@ -420,8 +404,8 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   color: var(--ink-soft);
   text-align: left;
 }
-.demo-codes p { margin: 0 0 .5rem; }
-.demo-codes button {
+.demo-note p { margin: 0 0 .5rem; }
+.demo-note button {
   font-family: var(--f-caps);
   font-size: .7rem;
   letter-spacing: .14em;
@@ -433,9 +417,8 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   cursor: pointer;
   border-radius: 2px;
 }
-.demo-codes button:hover { background: rgba(168,135,90,.15); }
+.demo-note button:hover { background: rgba(168,135,90,.15); }
 
-/* Party card */
 .greeting {
   font-family: var(--f-script);
   font-style: italic;
@@ -453,7 +436,6 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
   color: var(--ink);
   margin: 1.2rem 0 1.6rem;
 }
-.entitlement strong { font-weight: 600; }
 
 .guest-block {
   border-top: 1px solid rgba(168,135,90,.4);
@@ -487,7 +469,6 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 
 .sub { font-size: .78rem; color: var(--ink-soft); font-style: italic; }
 
-/* Wax seal */
 .seal {
   width: 72px; height: 72px;
   margin: 0 auto 1.2rem;
@@ -504,10 +485,7 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 
 /* FAQ */
 .faq { text-align: left; }
-.faq details {
-  border-top: 1px solid rgba(168,135,90,.4);
-  padding: .2rem 0;
-}
+.faq details { border-top: 1px solid rgba(168,135,90,.4); padding: .2rem 0; }
 .faq details:last-of-type { border-bottom: 1px solid rgba(168,135,90,.4); }
 .faq summary {
   cursor: pointer;
@@ -531,7 +509,6 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 .faq details[open] summary::after { content: "\2013"; }
 .faq details p { margin: 0 0 1rem; font-size: .92rem; color: var(--ink-soft); }
 
-/* Footer */
 footer {
   text-align: center;
   padding: 3rem 1.25rem 3.5rem;
@@ -540,7 +517,6 @@ footer {
 footer p { margin: .35rem 0; font-size: .85rem; }
 footer a { color: var(--lace); }
 
-/* Reveal on scroll */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.in { opacity: 1; transform: none; }
 
@@ -556,7 +532,7 @@ html { scroll-behavior: smooth; }
 <body>
 
 <div class="preview-bar">
-  Design preview · every name, date, time and link below is placeholder copy
+  In progress &middot; the date is provisional and the times below aren't final
 </div>
 
 <nav>
@@ -565,7 +541,6 @@ html { scroll-behavior: smooth; }
     <li><a href="#where">Where</a></li>
     <li><a href="#wear">What to Wear</a></li>
     <li><a href="#rsvp">RSVP</a></li>
-    <li><a href="#registry">Registry</a></li>
     <li><a href="#faq">Questions</a></li>
   </ul>
 </nav>
@@ -577,16 +552,16 @@ html { scroll-behavior: smooth; }
       <div class="field">
         <p class="invited">Please join us for the wedding of</p>
 
-        <h1 class="names">Selena<span class="amp">and</span>Oliver</h1>
+        <h1 class="names">Logan<span class="amp">and</span>Mary Lou</h1>
 
-        <p class="hero-date">Saturday, the Fifteenth of May · Two Thousand Twenty-Seven</p>
-        <p class="hero-place">Wedding Palace · 232 Chestnut Street, Philadelphia</p>
+        <p class="hero-date">Saturday, the Nineteenth of June &middot; Two Thousand Twenty-Seven</p>
+        <p class="hero-place">Surprise Valley Eagle Christian Church &middot; Boise, Idaho</p>
 
-        <div class="countdown" id="countdown" aria-label="Time remaining until the wedding">
-          <div class="cd-cell"><div class="cd-num" id="cd-d">—</div><div class="cd-lab">Days</div></div>
-          <div class="cd-cell"><div class="cd-num" id="cd-h">—</div><div class="cd-lab">Hours</div></div>
-          <div class="cd-cell"><div class="cd-num" id="cd-m">—</div><div class="cd-lab">Minutes</div></div>
-          <div class="cd-cell"><div class="cd-num" id="cd-s">—</div><div class="cd-lab">Seconds</div></div>
+        <div class="countdown" aria-label="Time remaining until the wedding">
+          <div class="cd-cell"><div class="cd-num" id="cd-d">&mdash;</div><div class="cd-lab">Days</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-h">&mdash;</div><div class="cd-lab">Hours</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-m">&mdash;</div><div class="cd-lab">Minutes</div></div>
+          <div class="cd-cell"><div class="cd-num" id="cd-s">&mdash;</div><div class="cd-lab">Seconds</div></div>
         </div>
 
         <a class="btn" href="#rsvp">Reply to your invitation</a>
@@ -600,36 +575,36 @@ html { scroll-behavior: smooth; }
   <div class="card">
     <div class="panel">
       <div class="field">
-        <p class="eyebrow">Saturday, May 15th</p>
+        <p class="eyebrow">Saturday, June 19th</p>
         <h2 class="sec-title">The Day</h2>
         <div class="rule"><i></i></div>
 
+        <p class="lede" style="margin:0 0 1.2rem;">The ceremony and the reception are both at the church, so there's no driving between them.</p>
+
         <div class="schedule">
           <div class="slot">
-            <time>4:30</time>
-            <div><b>Guests arrive</b><span>Doors open in the garden court. Please be seated by ten of five.</span></div>
+            <time>3:30</time>
+            <div><b>Guests arrive</b><span>Doors open. Please be seated a few minutes before four.</span></div>
           </div>
           <div class="slot">
-            <time>5:00</time>
-            <div><b>Ceremony</b><span>Outdoors on the south lawn, weather permitting.</span></div>
+            <time>4:00</time>
+            <div><b>Ceremony</b><span>In the sanctuary.</span></div>
           </div>
           <div class="slot">
-            <time>5:45</time>
-            <div><b>Cocktail hour</b><span>Terrace and conservatory. Portraits during this time.</span></div>
+            <time>4:45</time>
+            <div><b>Photographs</b><span>Family portraits. Everyone else, head through for refreshments.</span></div>
           </div>
           <div class="slot">
-            <time>7:00</time>
-            <div><b>Dinner</b><span>Seated in the Grand Hall. Toasts to follow.</span></div>
+            <time>5:30</time>
+            <div><b>Reception</b><span>Dinner, toasts and celebrating.</span></div>
           </div>
           <div class="slot">
-            <time>8:30</time>
-            <div><b>Dancing</b><span>First dance, then the floor is yours.</span></div>
-          </div>
-          <div class="slot">
-            <time>11:00</time>
-            <div><b>Send-off</b><span>Sparklers at the front drive.</span></div>
+            <time>9:00</time>
+            <div><b>Send-off</b><span>See us off at the front doors.</span></div>
           </div>
         </div>
+
+        <p class="sub" style="margin-top:1.1rem;">These times aren't final &mdash; we'll confirm them well before the day.</p>
       </div>
     </div>
   </div>
@@ -640,30 +615,22 @@ html { scroll-behavior: smooth; }
   <div class="card">
     <div class="panel">
       <div class="field">
-        <p class="eyebrow">Philadelphia, Pennsylvania</p>
+        <p class="eyebrow">Boise, Idaho</p>
         <h2 class="sec-title">Where to Find Us</h2>
         <div class="rule"><i></i></div>
 
         <div class="stack">
           <div>
             <p class="detail-h">The venue</p>
-            <p>Wedding Palace<br>232 Chestnut Street<br>Philadelphia, PA 19106</p>
+            <p>Surprise Valley Eagle Christian Church<br>4601 S Surprise Way<br>Boise, Idaho 83716</p>
           </div>
-          <a class="btn ghost" href="#where" onclick="return false;">Open in maps</a>
+          <a class="btn ghost"
+             href="https://maps.google.com/?q=4601+S+Surprise+Way,+Boise,+ID+83716"
+             target="_blank" rel="noopener">Open in maps</a>
 
           <div>
             <p class="detail-h">Parking</p>
-            <p class="lede">Complimentary valet at the Chestnut Street entrance. A public garage sits one block west on Third.</p>
-          </div>
-
-          <div>
-            <p class="detail-h">Where to stay</p>
-            <p class="lede">We have held a block of rooms at two nearby hotels through April 15th. Mention the wedding when you book.</p>
-          </div>
-
-          <div>
-            <p class="detail-h">Getting here</p>
-            <p class="lede">Philadelphia International is a twenty-minute drive. 30th Street Station is fifteen minutes by cab.</p>
+            <p class="lede">There's parking on site. We'll add a note about the best entrance closer to the day.</p>
           </div>
         </div>
       </div>
@@ -676,19 +643,15 @@ html { scroll-behavior: smooth; }
   <div class="card">
     <div class="panel">
       <div class="field">
-        <p class="eyebrow">Black tie optional</p>
+        <p class="eyebrow">Semi-formal</p>
         <h2 class="sec-title">What to Wear</h2>
         <div class="rule"><i></i></div>
 
         <div class="stack">
-          <p>Tuxedos and floor-length gowns are very welcome. A dark suit and tie, or a cocktail dress, is equally at home.</p>
-          <div>
-            <p class="detail-h">One practical note</p>
-            <p class="lede">The ceremony is on grass. Block heels or flats will serve you better than stilettos.</p>
-          </div>
+          <p>A suit and tie, a cocktail dress, or dressy separates. No need for a tuxedo or a floor-length gown &mdash; but a step up from an ordinary Sunday.</p>
           <div>
             <p class="detail-h">Children</p>
-            <p class="lede">Children are warmly welcome at both the ceremony and the reception. Please list every child who will attend when you reply, so we can set a place for them.</p>
+            <p class="lede">Children are warmly welcome at both the ceremony and the reception. Please list every child joining you when you reply, so we can set a place for them.</p>
           </div>
         </div>
       </div>
@@ -702,34 +665,35 @@ html { scroll-behavior: smooth; }
     <div class="panel">
       <div class="field">
 
-        <!-- STEP 1 -->
-        <div class="rsvp-step" id="step-code">
-          <p class="eyebrow">Kindly reply by the first of April</p>
+        <!-- STEP 1 — name search -->
+        <div class="rsvp-step" id="step-find">
+          <p class="eyebrow">Kindly reply by the twenty-second of May</p>
           <h2 class="sec-title">RSVP</h2>
           <div class="rule"><i></i></div>
 
-          <p class="lede" style="margin:0 0 1.4rem;">Scanning the code on your invitation signs you in automatically. If you are typing it yourself, the four characters are printed beneath the code.</p>
+          <p class="lede" style="margin:0 0 1.4rem;">Search for your name as it appears on your invitation. You'll reply for everyone in your party at once, for both the ceremony and the reception.</p>
 
-          <form id="code-form" novalidate>
+          <form id="find-form" novalidate>
             <div class="form-row">
-              <label for="code">Your invitation code</label>
-              <input class="input code-input" id="code" name="code" maxlength="4"
-                     autocomplete="off" autocapitalize="characters" spellcheck="false"
-                     inputmode="text" placeholder="····">
+              <label for="q">Your full name</label>
+              <input class="input" id="q" name="q" autocomplete="name"
+                     autocapitalize="words" spellcheck="false" placeholder="First and last name">
             </div>
-            <p class="msg" id="code-msg" role="status"></p>
+            <p class="msg" id="find-msg" role="status"></p>
             <button class="btn" type="submit">Find my invitation</button>
           </form>
 
-          <div class="demo-codes">
-            <p><strong>Preview:</strong> three sample invitations, each with different permissions.</p>
-            <button type="button" data-try="A4K2">A4K2 — family, children invited</button>
-            <button type="button" data-try="B7R9">B7R9 — one seat, plus one allowed</button>
-            <button type="button" data-try="C3M6">C3M6 — one seat only</button>
+          <div class="matches" id="matches"></div>
+
+          <div class="demo-note">
+            <p><strong>Still being built:</strong> the real guest list isn't loaded yet. Try one of these to see how it works.</p>
+            <button type="button" data-try="Marcus Whitfield">Family with children</button>
+            <button type="button" data-try="Dana Reyes">Guest with a plus one</button>
+            <button type="button" data-try="Samuel Okafor">Single guest</button>
           </div>
         </div>
 
-        <!-- STEP 2 -->
+        <!-- STEP 2 — the party -->
         <div class="rsvp-step" id="step-party" hidden>
           <p class="eyebrow">Your invitation</p>
           <h2 class="greeting" id="greeting"></h2>
@@ -749,13 +713,6 @@ html { scroll-behavior: smooth; }
 
             <div class="guest-block">
               <div class="form-row">
-                <label for="song">A song that will get you dancing</label>
-                <input class="input" id="song" placeholder="Artist — Title">
-              </div>
-            </div>
-
-            <div class="guest-block">
-              <div class="form-row">
                 <label for="email">Email for your confirmation</label>
                 <input class="input" id="email" type="email" placeholder="you@example.com">
               </div>
@@ -763,13 +720,17 @@ html { scroll-behavior: smooth; }
 
             <p class="msg" id="party-msg" role="status"></p>
             <button class="btn" type="submit">Send our reply</button>
-            <p class="sub" style="margin-top:.9rem;">You can come back and change your answer any time before the first of April.</p>
+            <p class="sub" style="margin-top:.9rem;">You can come back and change your answer any time before the twenty-second of May.</p>
           </form>
+
+          <p style="margin-top:1.4rem;">
+            <button class="btn ghost" type="button" id="back">Not you? Search again</button>
+          </p>
         </div>
 
-        <!-- STEP 3 -->
+        <!-- STEP 3 — confirmation -->
         <div class="rsvp-step" id="step-done" hidden>
-          <div class="seal" aria-hidden="true">S&amp;O</div>
+          <div class="seal" aria-hidden="true">L&amp;M</div>
           <p class="eyebrow">Received</p>
           <h2 class="sec-title" id="done-title">Thank you</h2>
           <div class="rule"><i></i></div>
@@ -783,26 +744,8 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ========================= REGISTRY ========================= -->
-<section class="section wrap reveal" id="registry">
-  <div class="card">
-    <div class="panel">
-      <div class="field">
-        <p class="eyebrow">With gratitude</p>
-        <h2 class="sec-title">Registry</h2>
-        <div class="rule"><i></i></div>
-
-        <p class="lede" style="margin:0 0 1.4rem;">Your presence is the gift. For those who have asked, we have registered in a few places.</p>
-
-        <div class="registry">
-          <a class="reg-link" href="#registry" onclick="return false;">Crate &amp; Barrel <em>&rarr;</em></a>
-          <a class="reg-link" href="#registry" onclick="return false;">Williams Sonoma <em>&rarr;</em></a>
-          <a class="reg-link" href="#registry" onclick="return false;">Honeymoon fund <em>&rarr;</em></a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- A Registry section belongs here once Logan and Mary Lou have chosen
+     one. Add the nav link back at the same time. -->
 
 <!-- ========================= FAQ ========================= -->
 <section class="section wrap reveal" id="faq">
@@ -816,27 +759,27 @@ html { scroll-behavior: smooth; }
         <div class="faq">
           <details>
             <summary>Can I bring a guest?</summary>
-            <p>Your invitation says so directly. Enter your code above and it will tell you exactly how many seats are held in your name.</p>
+            <p>Search your name above and it will tell you how many seats are held in your name. If you may bring a guest, there'll be a space to add their name.</p>
           </details>
           <details>
             <summary>Are children invited?</summary>
-            <p>Yes. Children are welcome at the ceremony and the reception. Please name each child when you reply so the kitchen and the seating chart account for them.</p>
+            <p>Yes. Children are welcome at both the ceremony and the reception. Please name each child when you reply so we can set a place for them.</p>
+          </details>
+          <details>
+            <summary>Do I reply separately for the ceremony and the reception?</summary>
+            <p>No &mdash; one reply covers both. They're at the same place, one straight after the other.</p>
           </details>
           <details>
             <summary>What if my plans change?</summary>
-            <p>Come back to this page, enter your code again, and update your answer. Anything before the first of April is no trouble at all.</p>
+            <p>Come back to this page, search your name again, and update your answer. Anything before the twenty-second of May is no trouble at all.</p>
           </details>
           <details>
-            <summary>Is the ceremony outdoors?</summary>
-            <p>Yes, on the south lawn. The conservatory is our rain plan and holds everyone comfortably.</p>
+            <summary>What should I wear?</summary>
+            <p>Semi-formal. A suit and tie or a cocktail dress is exactly right.</p>
           </details>
           <details>
-            <summary>When should I arrive?</summary>
-            <p>Doors open at half past four. Please be seated by ten minutes to five.</p>
-          </details>
-          <details>
-            <summary>May I take photographs?</summary>
-            <p>During the ceremony we ask that phones stay away so our photographer has a clear view. Afterwards, please take as many as you like.</p>
+            <summary>I can't find my name.</summary>
+            <p>Try the name as it was written on your invitation, or just your last name. If it still doesn't turn up, email us at <a href="mailto:lcrane644@gmail.com">lcrane644@gmail.com</a> and we'll sort it out.</p>
           </details>
         </div>
       </div>
@@ -845,9 +788,9 @@ html { scroll-behavior: smooth; }
 </section>
 
 <footer>
-  <div class="seal" aria-hidden="true">S&amp;O</div>
-  <p>Questions we haven't answered? Write to <a href="#faq" onclick="return false;">hello@example.com</a></p>
-  <p style="opacity:.65;">Selena &amp; Oliver · May 15, 2027</p>
+  <div class="seal" aria-hidden="true">L&amp;M</div>
+  <p>Questions we haven't answered? Write to <a href="mailto:lcrane644@gmail.com">lcrane644@gmail.com</a></p>
+  <p style="opacity:.65;">Logan &amp; Mary Lou &middot; June 19, 2027 &middot; Boise, Idaho</p>
 </footer>
 
 <script>
@@ -855,7 +798,7 @@ html { scroll-behavior: smooth; }
   "use strict";
 
   /* ---------- Countdown ---------- */
-  var target = new Date("2027-05-15T17:00:00").getTime();
+  var target = new Date("2027-06-19T16:00:00").getTime();
   var els = {
     d: document.getElementById("cd-d"), h: document.getElementById("cd-h"),
     m: document.getElementById("cd-m"), s: document.getElementById("cd-s")
@@ -873,96 +816,158 @@ html { scroll-behavior: smooth; }
   tick();
   setInterval(tick, 1000);
 
-  /* ---------- Sample guest list ----------
-     In the real site this lookup happens on the server so the guest
-     list is never shipped to the browser. Inlined here only so the
-     preview can demonstrate the three permission cases. */
-  var GUESTS = {
-    A4K2: {
-      greeting: "The Whitfield Family",
+  /* ================================================================
+     GUEST LOOKUP
+
+     Sample data, standing in until the real guest list exists. When it
+     does, the list moves into a Google Sheet and findParty() becomes a
+     fetch() to the Apps Script endpoint — so the full list is never
+     shipped to the browser and nobody can read it all. Everything
+     below findParty() stays exactly as it is.
+     ================================================================ */
+
+  var PARTIES = [
+    {
+      household: "The Whitfield Family",
       adults: ["Marcus Whitfield", "Elena Whitfield"],
       children: ["Nora Whitfield", "Theo Whitfield"],
       plusOne: false
     },
-    B7R9: {
-      greeting: "Dana Reyes",
+    {
+      household: "Dana Reyes",
       adults: ["Dana Reyes"],
       children: [],
       plusOne: true
     },
-    C3M6: {
-      greeting: "Samuel Okafor",
+    {
+      household: "Samuel Okafor",
       adults: ["Samuel Okafor"],
       children: [],
       plusOne: false
+    },
+    {
+      /* Same surname as another household — searching "Whitfield" has to
+         ask which one, rather than guessing. */
+      household: "James Whitfield",
+      adults: ["James Whitfield"],
+      children: [],
+      plusOne: true
     }
-  };
+  ];
 
-  var MEALS = ["Filet of beef", "Roasted halibut", "Wild mushroom risotto (v)"];
+  var MEALS = ["Chicken", "Beef", "Vegetarian"];
+
+  function normalize(s) {
+    return String(s || "").toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
+  }
+
+  /* Every word the guest typed has to start one of the words in the
+     party's names. So "reyes", "dana", "dana reyes" and even "rey" all
+     find the same household, but "dana okafor" finds nothing and a
+     stray "eyes" doesn't match "Reyes". Matching on word starts rather
+     than any substring keeps short queries from hitting everyone. */
+  function findParty(query) {
+    var tokens = normalize(query).split(" ").filter(Boolean);
+    if (!tokens.length) return [];
+    return PARTIES.filter(function (p) {
+      var words = normalize(
+        p.adults.join(" ") + " " + p.children.join(" ") + " " + p.household
+      ).split(" ");
+      return tokens.every(function (t) {
+        return words.some(function (w) { return w.lastIndexOf(t, 0) === 0; });
+      });
+    });
+  }
+
+  /* ---------- Step handling ---------- */
 
   var steps = {
-    code: document.getElementById("step-code"),
+    find: document.getElementById("step-find"),
     party: document.getElementById("step-party"),
     done: document.getElementById("step-done")
   };
   function show(name) {
     Object.keys(steps).forEach(function (k) { steps[k].hidden = (k !== name); });
-    steps[name].scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("rsvp").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  var codeInput = document.getElementById("code");
-  var codeMsg = document.getElementById("code-msg");
+  var qInput = document.getElementById("q");
+  var findMsg = document.getElementById("find-msg");
+  var matchBox = document.getElementById("matches");
   var current = null;
 
-  document.getElementById("code-form").addEventListener("submit", function (e) {
+  document.getElementById("find-form").addEventListener("submit", function (e) {
     e.preventDefault();
-    lookup(codeInput.value);
+    search(qInput.value);
   });
 
   Array.prototype.forEach.call(document.querySelectorAll("[data-try]"), function (b) {
     b.addEventListener("click", function () {
-      codeInput.value = b.getAttribute("data-try");
-      lookup(codeInput.value);
+      qInput.value = b.getAttribute("data-try");
+      search(qInput.value);
     });
   });
 
-  function lookup(raw) {
-    var code = String(raw || "").trim().toUpperCase();
-    var party = GUESTS[code];
-    if (!party) {
-      codeMsg.textContent = code
-        ? "We couldn't find that code. Check the four characters on your invitation, or write to us and we'll sort it out."
-        : "Please enter the four characters printed on your invitation.";
+  function search(raw) {
+    matchBox.innerHTML = "";
+
+    if (!normalize(raw)) {
+      findMsg.textContent = "Please enter your name.";
       return;
     }
-    codeMsg.textContent = "";
+
+    var results = findParty(raw);
+
+    if (!results.length) {
+      findMsg.innerHTML = "We couldn't find that name. Try the name as it was written on your " +
+        "invitation, or just your last name — or email us at " +
+        '<a href="mailto:lcrane644@gmail.com">lcrane644@gmail.com</a>.';
+      return;
+    }
+
+    findMsg.textContent = "";
+
+    if (results.length === 1) { open(results[0]); return; }
+
+    /* More than one household matched — let them pick. */
+    findMsg.textContent = "We found a few. Which one is you?";
+    results.forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "match";
+      var strong = document.createElement("strong");
+      strong.textContent = p.household;
+      var small = document.createElement("small");
+      small.textContent = p.adults.join(", ");
+      b.appendChild(strong);
+      b.appendChild(small);
+      b.addEventListener("click", function () { open(p); });
+      matchBox.appendChild(b);
+    });
+  }
+
+  function open(party) {
     current = party;
     render(party);
     show("party");
   }
 
   function render(party) {
-    document.getElementById("greeting").textContent = party.greeting;
+    document.getElementById("greeting").textContent = party.household;
 
     var seats = party.adults.length + (party.plusOne ? 1 : 0);
     var lines = ["<strong>" + seats + (seats === 1 ? " seat is" : " seats are") + " held in your name.</strong>"];
-    if (party.plusOne) lines.push("You are welcome to bring a guest — add their name below.");
+    if (party.plusOne) lines.push("You're welcome to bring a guest — add their name below.");
     if (party.children.length) {
       lines.push("Your children are invited: " + party.children.join(" and ") + ".");
-    } else {
-      lines.push("This invitation is for adults only. We hope that gives you an evening off.");
     }
     document.getElementById("entitlement").innerHTML = lines.join("<br>");
 
     var host = document.getElementById("guests");
     host.innerHTML = "";
 
-    party.adults.forEach(function (name, i) { host.appendChild(guestBlock(name, "a" + i)); });
-
-    if (party.plusOne) {
-      var block = guestBlock("Your guest", "p0", true);
-      host.appendChild(block);
-    }
+    party.adults.forEach(function (name, i) { host.appendChild(guestBlock(name, "a" + i, false)); });
+    if (party.plusOne) host.appendChild(guestBlock("Your guest", "p0", true));
 
     if (party.children.length) {
       var kids = document.createElement("div");
@@ -1009,6 +1014,11 @@ html { scroll-behavior: smooth; }
     toggle.className = "toggle";
     toggle.setAttribute("role", "group");
     toggle.setAttribute("aria-label", "Will " + name + " attend?");
+
+    var extras = document.createElement("div");
+    extras.className = "form-row";
+    extras.style.gap = ".7rem";
+
     [["yes", "Joyfully accepts"], ["no", "Regretfully declines"]].forEach(function (opt) {
       var id = key + "-" + opt[0];
       var input = document.createElement("input");
@@ -1029,16 +1039,18 @@ html { scroll-behavior: smooth; }
     head.appendChild(toggle);
     wrap.appendChild(head);
 
-    var extras = document.createElement("div");
-    extras.className = "form-row";
-    extras.style.gap = ".7rem";
-
     if (isPlusOne) {
       var nameRow = document.createElement("div");
       nameRow.className = "form-row";
-      nameRow.innerHTML =
-        '<label for="' + key + '-name">Your guest\'s full name</label>' +
-        '<input class="input" id="' + key + '-name" placeholder="First and last name">';
+      var nameLabel = document.createElement("label");
+      nameLabel.setAttribute("for", key + "-name");
+      nameLabel.textContent = "Your guest's full name";
+      var nameField = document.createElement("input");
+      nameField.className = "input";
+      nameField.id = key + "-name";
+      nameField.placeholder = "First and last name";
+      nameRow.appendChild(nameLabel);
+      nameRow.appendChild(nameField);
       extras.appendChild(nameRow);
     }
 
@@ -1074,20 +1086,28 @@ html { scroll-behavior: smooth; }
 
     if (yes + kids === 0) {
       title.textContent = "We'll miss you";
-      body.textContent = "Thank you for letting us know. We're sorry you can't be there, and we'll raise a glass to you.";
+      body.textContent = "Thank you for letting us know. We're sorry you can't be there, and we'll be thinking of you.";
     } else {
       title.textContent = "We can't wait";
       var parts = [yes + (yes === 1 ? " seat" : " seats")];
       if (kids) parts.push(kids + (kids === 1 ? " child" : " children"));
       body.textContent = "You're down for " + parts.join(" and ") +
-        " on Saturday, May 15th. Doors open at half past four.";
+        " on Saturday, June 19th. Doors open at half past three.";
     }
     show("done");
   });
 
+  document.getElementById("back").addEventListener("click", function () {
+    current = null;
+    qInput.value = "";
+    matchBox.innerHTML = "";
+    findMsg.textContent = "";
+    show("find");
+  });
+
   document.getElementById("restart").addEventListener("click", function () {
     if (current) { render(current); show("party"); }
-    else show("code");
+    else show("find");
   });
 
   /* ---------- Reveal on scroll ---------- */
