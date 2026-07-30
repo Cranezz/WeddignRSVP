@@ -295,6 +295,63 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 }
 
 /* ============================================================
+   MAPS CHOOSER
+   ============================================================ */
+
+dialog.maps {
+  border: 0;
+  padding: 0;
+  background: #0000;
+  width: min(92vw, 21rem);
+  color: var(--ink);
+}
+dialog.maps::backdrop {
+  background: rgba(24, 6, 10, .62);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+dialog.maps[open] { animation: maps-in .22s ease both; }
+@keyframes maps-in {
+  from { opacity: 0; transform: translateY(10px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.maps-card {
+  background: var(--cream);
+  border: 1px solid rgba(168,135,90,.5);
+  outline: 1px solid rgba(250,244,233,.6);
+  outline-offset: 2px;
+  padding: 1.7rem 1.3rem 1.4rem;
+  text-align: center;
+}
+.maps-card h3 {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin: .3rem 0 0;
+  color: var(--ink);
+}
+.maps-addr {
+  font-size: .86rem;
+  color: var(--ink-soft);
+  margin: .5rem 0 0;
+}
+.maps-choices { display: grid; gap: .6rem; margin: 1.3rem 0 1rem; }
+.maps-choices .btn { padding: .85rem 1rem; }
+.maps-cancel {
+  background: #0000;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--f-caps);
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .64rem;
+  color: var(--ink-soft);
+  padding: .5rem;
+}
+.maps-cancel:hover { color: var(--ink); }
+
+/* ============================================================
    SCHEDULE
    ============================================================ */
 
@@ -624,9 +681,7 @@ html { scroll-behavior: smooth; }
             <p class="detail-h">The venue</p>
             <p>Surprise Valley Eagle Christian Church<br>4601 S Surprise Way<br>Boise, Idaho 83716</p>
           </div>
-          <a class="btn ghost"
-             href="https://maps.google.com/?q=4601+S+Surprise+Way,+Boise,+ID+83716"
-             target="_blank" rel="noopener">Open in maps</a>
+          <button class="btn ghost" type="button" id="open-maps">Open in maps</button>
 
           <div>
             <p class="detail-h">Parking</p>
@@ -793,9 +848,61 @@ html { scroll-behavior: smooth; }
   <p style="opacity:.65;">Logan &amp; Mary Lou &middot; June 19, 2027 &middot; Boise, Idaho</p>
 </footer>
 
+<dialog class="maps" id="maps-dialog" aria-labelledby="maps-title">
+  <div class="maps-card">
+    <p class="eyebrow">Directions</p>
+    <h3 id="maps-title">Which maps app?</h3>
+    <p class="maps-addr">Surprise Valley Eagle Christian Church<br>4601 S Surprise Way, Boise, ID 83716</p>
+
+    <div class="maps-choices">
+      <a class="btn" id="maps-apple"
+         href="https://maps.apple.com/?q=Surprise+Valley+Eagle+Christian+Church&amp;address=4601+S+Surprise+Way,+Boise,+ID+83716"
+         target="_blank" rel="noopener">Apple Maps</a>
+      <a class="btn" id="maps-google"
+         href="https://maps.google.com/?q=Surprise+Valley+Eagle+Christian+Church,+4601+S+Surprise+Way,+Boise,+ID+83716"
+         target="_blank" rel="noopener">Google Maps</a>
+    </div>
+
+    <button class="maps-cancel" type="button" id="maps-cancel">Never mind</button>
+  </div>
+</dialog>
+
 <script>
 (function () {
   "use strict";
+
+  /* ---------- Maps chooser ---------- */
+  var mapsBtn = document.getElementById("open-maps");
+  var mapsDlg = document.getElementById("maps-dialog");
+
+  mapsBtn.addEventListener("click", function () {
+    /* Very old browsers have no <dialog>; send them straight to Google
+       Maps rather than leaving the button dead. */
+    if (typeof mapsDlg.showModal !== "function") {
+      window.open(document.getElementById("maps-google").href, "_blank", "noopener");
+      return;
+    }
+    mapsDlg.showModal();
+  });
+
+  document.getElementById("maps-cancel").addEventListener("click", function () {
+    mapsDlg.close();
+  });
+
+  /* Tapping the dimmed area outside the card closes it. The dialog fills
+     the backdrop's click target, so compare against the card's box. */
+  mapsDlg.addEventListener("click", function (e) {
+    var box = mapsDlg.querySelector(".maps-card").getBoundingClientRect();
+    var outside = e.clientY < box.top || e.clientY > box.bottom ||
+                  e.clientX < box.left || e.clientX > box.right;
+    if (outside) mapsDlg.close();
+  });
+
+  /* Picking an app closes the dialog behind them, so coming back to the
+     tab doesn't land on a stale popup. */
+  Array.prototype.forEach.call(mapsDlg.querySelectorAll("a"), function (a) {
+    a.addEventListener("click", function () { mapsDlg.close(); });
+  });
 
   /* ---------- Countdown ---------- */
   var target = new Date("2027-06-19T16:00:00").getTime();
