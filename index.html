@@ -1201,65 +1201,79 @@ html { scroll-behavior: smooth; }
   setInterval(tick, 1000);
 
   /* ================================================================
-     GUEST LOOKUP
+     GUEST LOOKUP AND RSVP
 
-     Sample data, standing in until the real guest list exists. When it
-     does, the list moves into a Google Sheet and findParty() becomes a
-     fetch() to the Apps Script endpoint — so the full list is never
-     shipped to the browser and nobody can read it all. Everything
-     below findParty() stays exactly as it is.
+     The guest list lives in a Google Sheet. The page never receives the
+     whole list — it asks the Apps Script for names matching what the
+     guest typed, and only matching households come back. That matters
+     here: the list has children's names in it, and this repository is
+     public.
+
+     Set RSVP_API to the Apps Script /exec URL. While it is empty the
+     page runs on the sample data below so the flow can still be shown.
      ================================================================ */
 
-  var PARTIES = [
-    {
-      household: "The Whitfield Family",
+  var RSVP_API = "";
+
+  var DEMO_PARTIES = [
+    { id: "d1", household: "The Whitfield Family",
       adults: ["Marcus Whitfield", "Elena Whitfield"],
-      children: ["Nora Whitfield", "Theo Whitfield"],
-      plusOne: false
-    },
-    {
-      household: "Dana Reyes",
-      adults: ["Dana Reyes"],
-      children: [],
-      plusOne: true
-    },
-    {
-      household: "Samuel Okafor",
-      adults: ["Samuel Okafor"],
-      children: [],
-      plusOne: false
-    },
-    {
-      /* Same surname as another household — searching "Whitfield" has to
-         ask which one, rather than guessing. */
-      household: "James Whitfield",
-      adults: ["James Whitfield"],
-      children: [],
-      plusOne: true
-    }
+      children: ["Nora Whitfield", "Theo Whitfield"], plusOne: false },
+    { id: "d2", household: "Dana Reyes",
+      adults: ["Dana Reyes"], children: [], plusOne: true },
+    { id: "d3", household: "Samuel Okafor",
+      adults: ["Samuel Okafor"], children: [], plusOne: false },
+    { id: "d4", household: "James Whitfield",
+      adults: ["James Whitfield"], children: [], plusOne: true }
   ];
 
-  var MEALS = ["Chicken", "Beef", "Vegetarian"];
+  /* Meal choices. Leave empty and no dinner question is asked at all —
+     fill the array in once the caterer is booked and it appears for
+     every guest automatically:
+       var MEALS = ["Chicken", "Beef", "Vegetarian"]; */
+  var MEALS = [];
 
   function normalize(s) {
     return String(s || "").toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
   }
 
   /* Every word the guest typed has to start one of the words in the
-     party's names. So "reyes", "dana", "dana reyes" and even "rey" all
-     find the same household, but "dana okafor" finds nothing and a
-     stray "eyes" doesn't match "Reyes". Matching on word starts rather
-     than any substring keeps short queries from hitting everyone. */
-  function findParty(query) {
+     party's names, so "reyes", "dana" and "rey" all find the same
+     household but "eyes" does not. Mirrors the Apps Script exactly. */
+  function demoSearch(query) {
     var tokens = normalize(query).split(" ").filter(Boolean);
     if (!tokens.length) return [];
-    return PARTIES.filter(function (p) {
+    return DEMO_PARTIES.filter(function (p) {
       var words = normalize(
         p.adults.join(" ") + " " + p.children.join(" ") + " " + p.household
       ).split(" ");
       return tokens.every(function (t) {
         return words.some(function (w) { return w.lastIndexOf(t, 0) === 0; });
       });
+    });
+  }
+
+  function lookupParty(query) {
+    if (!RSVP_API) return Promise.resolve(demoSearch(query));
+    return fetch(RSVP_API + "?q=" + encodeURIComponent(query), { method: "GET" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) { return data.parties || []; });
+  }
+
+  function saveRsvp(payload) {
+    if (!RSVP_API) return Promise.resolve({ ok: true });
+    return fetch(RSVP_API, {
+      method: "POST",
+      /* text/plain keeps this a "simple" request. Anything else triggers
+         a CORS preflight, and Apps Script web apps cannot answer one. */
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
     });
   }
 
@@ -1278,7 +1292,10 @@ html { scroll-behavior: smooth; }
   var qInput = document.getElementById("q");
   var findMsg = document.getElementById("find-msg");
   var matchBox = document.getElementById("matches");
+  var findBtn = document.querySelector("#find-form button[type=submit]");
   var current = null;
+
+  var EMAIL_LINK = '<a href="mailto:lcrane644@gmail.com">lcrane644@gmail.com</a>';
 
   document.getElementById("find-form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -1292,6 +1309,11 @@ html { scroll-behavior: smooth; }
     });
   });
 
+  function busy(on) {
+    findBtn.disabled = on;
+    findBtn.textContent = on ? "Looking\u2026" : "Find my invitation";
+  }
+
   function search(raw) {
     matchBox.innerHTML = "";
 
@@ -1300,33 +1322,38 @@ html { scroll-behavior: smooth; }
       return;
     }
 
-    var results = findParty(raw);
-
-    if (!results.length) {
-      findMsg.innerHTML = "We couldn't find that name. Try the name as it was written on your " +
-        "invitation, or just your last name — or email us at " +
-        '<a href="mailto:lcrane644@gmail.com">lcrane644@gmail.com</a>.';
-      return;
-    }
-
+    busy(true);
     findMsg.textContent = "";
 
-    if (results.length === 1) { open(results[0]); return; }
+    lookupParty(raw).then(function (results) {
+      busy(false);
 
-    /* More than one household matched — let them pick. */
-    findMsg.textContent = "We found a few. Which one is you?";
-    results.forEach(function (p) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.className = "match";
-      var strong = document.createElement("strong");
-      strong.textContent = p.household;
-      var small = document.createElement("small");
-      small.textContent = p.adults.join(", ");
-      b.appendChild(strong);
-      b.appendChild(small);
-      b.addEventListener("click", function () { open(p); });
-      matchBox.appendChild(b);
+      if (!results.length) {
+        findMsg.innerHTML = "We couldn't find that name. Try the name as it was written on " +
+          "your invitation, or just your last name \u2014 or email us at " + EMAIL_LINK + ".";
+        return;
+      }
+
+      if (results.length === 1) { open(results[0]); return; }
+
+      findMsg.textContent = "We found a few. Which one is you?";
+      results.forEach(function (p) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "match";
+        var strong = document.createElement("strong");
+        strong.textContent = p.household;
+        var small = document.createElement("small");
+        small.textContent = (p.adults || []).join(", ");
+        b.appendChild(strong);
+        b.appendChild(small);
+        b.addEventListener("click", function () { open(p); });
+        matchBox.appendChild(b);
+      });
+    }).catch(function () {
+      busy(false);
+      findMsg.innerHTML = "We couldn't reach our guest list just now. Please try again in a " +
+        "moment, or email us at " + EMAIL_LINK + " and we'll add you by hand.";
     });
   }
 
@@ -1339,34 +1366,37 @@ html { scroll-behavior: smooth; }
   function render(party) {
     document.getElementById("greeting").textContent = party.household;
 
-    var seats = party.adults.length + (party.plusOne ? 1 : 0);
+    var adults = party.adults || [];
+    var children = party.children || [];
+    var seats = adults.length + (party.plusOne ? 1 : 0);
+
     var lines = ["<strong>" + seats + (seats === 1 ? " seat is" : " seats are") + " held in your name.</strong>"];
-    if (party.plusOne) lines.push("You're welcome to bring a guest — add their name below.");
-    if (party.children.length) {
-      lines.push("Your children are invited: " + party.children.join(" and ") + ".");
-    }
+    if (party.plusOne) lines.push("You're welcome to bring a guest \u2014 add their name below.");
+    if (children.length) lines.push("Your children are invited: " + children.join(" and ") + ".");
     document.getElementById("entitlement").innerHTML = lines.join("<br>");
 
     var host = document.getElementById("guests");
     host.innerHTML = "";
 
-    party.adults.forEach(function (name, i) { host.appendChild(guestBlock(name, "a" + i, false)); });
+    adults.forEach(function (name, i) { host.appendChild(guestBlock(name, "a" + i, false)); });
     if (party.plusOne) host.appendChild(guestBlock("Your guest", "p0", true));
 
-    if (party.children.length) {
+    if (children.length) {
       var kids = document.createElement("div");
       kids.className = "guest-block";
+      kids.dataset.kids = "1";
       var head = document.createElement("p");
       head.className = "detail-h";
       head.textContent = "Children attending";
       kids.appendChild(head);
-      party.children.forEach(function (name, i) {
+      children.forEach(function (name, i) {
         var row = document.createElement("div");
         row.className = "kid-row";
         var cb = document.createElement("input");
         cb.type = "checkbox";
         cb.id = "kid" + i;
         cb.checked = true;
+        cb.dataset.child = name;
         var lb = document.createElement("label");
         lb.setAttribute("for", "kid" + i);
         lb.textContent = name;
@@ -1385,6 +1415,9 @@ html { scroll-behavior: smooth; }
   function guestBlock(name, key, isPlusOne) {
     var wrap = document.createElement("div");
     wrap.className = "guest-block";
+    wrap.dataset.guest = key;
+    wrap.dataset.name = name;
+    wrap.dataset.type = isPlusOne ? "plus-one" : "adult";
 
     var head = document.createElement("div");
     head.className = "guest-head";
@@ -1438,47 +1471,122 @@ html { scroll-behavior: smooth; }
       extras.appendChild(nameRow);
     }
 
-    var mealRow = document.createElement("div");
-    mealRow.className = "form-row";
-    var mealLabel = document.createElement("label");
-    mealLabel.setAttribute("for", key + "-meal");
-    mealLabel.textContent = "Dinner choice";
-    var sel = document.createElement("select");
-    sel.className = "select";
-    sel.id = key + "-meal";
-    MEALS.forEach(function (m) {
-      var o = document.createElement("option");
-      o.textContent = m;
-      sel.appendChild(o);
-    });
-    mealRow.appendChild(mealLabel);
-    mealRow.appendChild(sel);
-    extras.appendChild(mealRow);
+    /* No caterer yet, so no dinner question. Fill MEALS in and it turns
+       up here for everyone without another change. */
+    if (MEALS.length) {
+      var mealRow = document.createElement("div");
+      mealRow.className = "form-row";
+      var mealLabel = document.createElement("label");
+      mealLabel.setAttribute("for", key + "-meal");
+      mealLabel.textContent = "Dinner choice";
+      var sel = document.createElement("select");
+      sel.className = "select";
+      sel.id = key + "-meal";
+      sel.dataset.meal = "1";
+      MEALS.forEach(function (m) {
+        var o = document.createElement("option");
+        o.textContent = m;
+        sel.appendChild(o);
+      });
+      mealRow.appendChild(mealLabel);
+      mealRow.appendChild(sel);
+      extras.appendChild(mealRow);
+    }
 
     if (isPlusOne) extras.hidden = true;
     wrap.appendChild(extras);
     return wrap;
   }
 
-  document.getElementById("party-form").addEventListener("submit", function (e) {
+  /* Reads the form into the shape the Apps Script writes to the sheet. */
+  function collectAnswers() {
+    var people = [];
+
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#guests [data-guest]"), function (block) {
+        var key = block.dataset.guest;
+        var picked = block.querySelector('input[type="radio"]:checked');
+        var attending = !!picked && picked.value === "yes";
+        var typed = block.querySelector("#" + key + "-name");
+        var meal = block.querySelector("[data-meal]");
+        people.push({
+          name: (typed && typed.value.trim()) || block.dataset.name,
+          type: block.dataset.type,
+          attending: attending,
+          meal: attending && meal ? meal.value : ""
+        });
+      });
+
+    Array.prototype.forEach.call(
+      document.querySelectorAll("#guests [data-child]"), function (cb) {
+        people.push({
+          name: cb.dataset.child,
+          type: "child",
+          attending: cb.checked,
+          meal: ""
+        });
+      });
+
+    return {
+      partyId: current ? current.id : "",
+      household: current ? current.household : "",
+      people: people,
+      dietary: document.getElementById("notes").value.trim(),
+      email: document.getElementById("email").value.trim()
+    };
+  }
+
+  var partyForm = document.getElementById("party-form");
+  var partyMsg = document.getElementById("party-msg");
+  var partyBtn = partyForm.querySelector('button[type="submit"]');
+
+  partyForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    var yes = document.querySelectorAll('#guests input[type="radio"][value="yes"]:checked').length;
-    var kids = document.querySelectorAll('#guests input[type="checkbox"]:checked').length;
 
-    var title = document.getElementById("done-title");
-    var body = document.getElementById("done-body");
+    var answers = collectAnswers();
+    var going = answers.people.filter(function (p) { return p.attending; });
 
-    if (yes + kids === 0) {
-      title.textContent = "We'll miss you";
-      body.textContent = "Thank you for letting us know. We're sorry you can't be there, and we'll be thinking of you.";
-    } else {
-      title.textContent = "We can't wait";
-      var parts = [yes + (yes === 1 ? " seat" : " seats")];
-      if (kids) parts.push(kids + (kids === 1 ? " child" : " children"));
-      body.textContent = "You're down for " + parts.join(" and ") +
-        " on Saturday, June 19th. Doors open at half past three.";
+    /* A plus one who is coming needs a name — otherwise the seating
+       chart has a blank in it. */
+    var namelessGuest = answers.people.some(function (p) {
+      return p.type === "plus-one" && p.attending && p.name === "Your guest";
+    });
+    if (namelessGuest) {
+      partyMsg.textContent = "Please add your guest's name.";
+      return;
     }
-    show("done");
+
+    partyBtn.disabled = true;
+    partyBtn.textContent = "Sending\u2026";
+    partyMsg.textContent = "";
+
+    saveRsvp(answers).then(function () {
+      partyBtn.disabled = false;
+      partyBtn.textContent = "Send our reply";
+
+      var title = document.getElementById("done-title");
+      var body = document.getElementById("done-body");
+      var kids = going.filter(function (p) { return p.type === "child"; }).length;
+      var seats = going.length - kids;
+
+      if (!going.length) {
+        title.textContent = "We'll miss you";
+        body.textContent = "Thank you for letting us know. We're sorry you can't be there, " +
+          "and we'll be thinking of you.";
+      } else {
+        title.textContent = "We can't wait";
+        var parts = [seats + (seats === 1 ? " seat" : " seats")];
+        if (kids) parts.push(kids + (kids === 1 ? " child" : " children"));
+        body.textContent = "You're down for " + parts.join(" and ") +
+          " on Saturday, June 19th. Doors open at half past three.";
+      }
+      show("done");
+    }).catch(function () {
+      partyBtn.disabled = false;
+      partyBtn.textContent = "Send our reply";
+      partyMsg.innerHTML = "We couldn't save that just now \u2014 please try again, or email " +
+        "us at " + EMAIL_LINK + ".";
+    });
   });
 
   document.getElementById("back").addEventListener("click", function () {
@@ -1493,6 +1601,13 @@ html { scroll-behavior: smooth; }
     if (current) { render(current); show("party"); }
     else show("find");
   });
+
+  /* The sample-invitation buttons are only useful before the sheet is
+     connected. */
+  if (RSVP_API) {
+    var demoBox = document.querySelector("#step-find .demo-note");
+    if (demoBox) demoBox.hidden = true;
+  }
 
   /* ---------- Reveal on scroll ---------- */
   if ("IntersectionObserver" in window) {
