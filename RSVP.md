@@ -73,6 +73,10 @@ In the spreadsheet: **Extensions → Apps Script**. Delete what's there and
 paste this.
 
 ```js
+// Bumped whenever this file changes. doGet reports it, so you can tell
+// at a glance whether the deployment is running the current code.
+const VERSION = 4;
+
 const GUESTS  = 'Guests';
 const REPLIES = 'Replies';
 const GIFTS   = 'Gifts';
@@ -145,11 +149,30 @@ function readGuests() {
 
 // Existing answers grouped by household, so a guest who already
 // replied is shown what they said instead of a blank form.
+// The script writes these rows itself, so if a header has been renamed
+// the known write order is a better answer than giving up.
+const REPLY_COLS = {
+  timestamp: 0, party_id: 1, household: 2, name: 3,
+  type: 4, attending: 5, meal: 6, dietary: 7, email: 8
+};
+const REPLY_ALIASES = {
+  party_id: ['party_id', 'partyid', 'party'],
+  household: ['household', 'family'],
+  attending: ['attending', 'coming', 'rsvp'],
+  dietary: ['dietary', 'diet', 'allergies']
+};
+
+function replyCol(map, key) {
+  const names = REPLY_ALIASES[key] || [key];
+  for (const n of names) if (map[n] !== undefined) return map[n];
+  return REPLY_COLS[key];
+}
+
 function readReplies() {
   const values = tab(REPLIES).getDataRange().getValues();
   if (values.length < 2) return {};
   const map = headerIndex(values.shift());
-  const c = k => (map[k] === undefined ? -1 : map[k]);
+  const c = k => replyCol(map, k);
 
   const byParty = {};
   values.forEach(r => {
@@ -225,7 +248,7 @@ function tokenScore(token, words) {
 function doGet(e) {
   try {
     const tokens = norm((e && e.parameter && e.parameter.q) || '').split(' ').filter(Boolean);
-    if (!tokens.length) return json({ parties: [] });
+    if (!tokens.length) return json({ version: VERSION, parties: [] });
 
     const replies = readReplies();
     const scored = [];
@@ -244,11 +267,11 @@ function doGet(e) {
     });
 
     scored.sort((a, b) => a.score - b.score);
-    return json({ parties: scored.map(s => s.party) });
+    return json({ version: VERSION, parties: scored.map(s => s.party) });
   } catch (err) {
     // Reported rather than swallowed: a bad header must not look to a
     // guest like "we can't find you".
-    return json({ parties: [], error: String(err) });
+    return json({ version: VERSION, parties: [], error: String(err) });
   }
 }
 
@@ -268,8 +291,7 @@ function doPost(e) {
 function saveRsvp(data) {
   const sh = tab(REPLIES);
   const values = sh.getDataRange().getValues();
-  const map = headerIndex(values[0] || []);
-  const cParty = map['party_id'] === undefined ? 1 : map['party_id'];
+  const cParty = replyCol(headerIndex(values[0] || []), 'party_id');
 
   // Clear this household's previous answer, remembering whether there
   // was one. Walk backwards — deleting a row shifts the rest up.
@@ -342,10 +364,21 @@ var RSVP_API = "https://script.google.com/macros/s/AKfy.../exec";
 With it set, the sample-invitation buttons hide themselves and the page
 runs entirely off the sheet.
 
-**The gotcha that catches everyone:** editing the script does nothing to
-the live URL until you run **Deploy → Manage deployments → ✏️ → Version:
-New version → Deploy**. Same URL, new code. If a change seems to have no
-effect, this is why.
+### Updating it later — read this
+
+Editing the code changes nothing about the live URL until you redeploy,
+and **there are two buttons that both say Deploy**:
+
+- **Deploy → New deployment** creates a *second* web app on a **brand
+  new URL**. The old one keeps running the old code, and your site is
+  still pointed at it. This is the trap.
+- **Deploy → Manage deployments → ✏️ (pencil) → Version: New version →
+  Deploy** updates the deployment you already have. **Same URL, new
+  code.** This is the one you want.
+
+If you have already made a second deployment, either send the new `/exec`
+URL over so the site can point at it, or delete it and update the
+original in place.
 
 ## Meal choices
 
@@ -368,7 +401,15 @@ Open the `/exec` URL in a browser with a real guest's name on the end:
 
     ...exec?q=smith
 
-You should see JSON. What's in it tells you exactly what is wrong:
+You should see JSON, starting with a version number:
+
+    {"version":4,"parties":[...]}
+
+**If `version` is missing or lower than the number at the top of the
+script, the deployment is running old code.** Nothing else in this
+section matters until that number matches — fix the deployment first.
+
+Once the version matches, what's in the rest tells you what is wrong:
 
 - **`{"parties":[],"error":"..."}`** — the message names the problem,
   usually a missing or misspelled column or tab.

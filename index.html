@@ -1424,7 +1424,7 @@ html { scroll-behavior: smooth; }
 
   /* Finds what this person said last time. The plus one is matched on
      type, not name — the stored name is whoever they brought, which
-     won't match the "Your guest" placeholder. */
+     won't match the "Plus one" placeholder. */
   function priorFor(prior, name, type) {
     if (!prior) return null;
     var people = prior.people || [];
@@ -1457,11 +1457,9 @@ html { scroll-behavior: smooth; }
     host.innerHTML = "";
 
     adults.forEach(function (name, i) {
-      host.appendChild(guestBlock(name, "a" + i, false, priorFor(prior, name, "adult")));
+      host.appendChild(guestBlock(name, "a" + i, priorFor(prior, name, "adult")));
     });
-    if (party.plusOne) {
-      host.appendChild(guestBlock("Your guest", "p0", true, priorFor(prior, null, "plus-one")));
-    }
+    if (party.plusOne) host.appendChild(plusOneBlock(priorFor(prior, null, "plus-one")));
 
 
     document.getElementById("email").value = (prior && prior.email) || "";
@@ -1514,12 +1512,97 @@ html { scroll-behavior: smooth; }
     }
   }
 
-  function guestBlock(name, key, isPlusOne, was) {
+  /* A plus one is an offer, not a person, so it reads as a tick box like
+     the children rather than an accept/decline for someone unnamed. */
+  function plusOneBlock(was) {
+    var wrap = document.createElement("div");
+    wrap.className = "guest-block";
+    wrap.dataset.plusone = "1";
+
+    var head = document.createElement("p");
+    head.className = "detail-h";
+    head.textContent = "Plus one";
+    wrap.appendChild(head);
+
+    var row = document.createElement("div");
+    row.className = "kid-row";
+    var cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.id = "p0-coming";
+    cb.checked = !!(was && was.attending);
+    var lb = document.createElement("label");
+    lb.setAttribute("for", "p0-coming");
+    lb.textContent = "I'm bringing a guest";
+    row.appendChild(cb);
+    row.appendChild(lb);
+    wrap.appendChild(row);
+
+    var details = document.createElement("div");
+    details.className = "form-row";
+    details.style.gap = ".7rem";
+
+    var nameRow = document.createElement("div");
+    nameRow.className = "form-row diet-row";
+    var nameLabel = document.createElement("label");
+    nameLabel.setAttribute("for", "p0-name");
+    nameLabel.textContent = "Their name";
+    var nameField = document.createElement("input");
+    nameField.className = "input";
+    nameField.id = "p0-name";
+    nameField.placeholder = "First and last name";
+    if (was && was.name && was.name !== "Plus one") nameField.value = was.name;
+    nameRow.appendChild(nameLabel);
+    nameRow.appendChild(nameField);
+    details.appendChild(nameRow);
+
+    if (MEALS.length) {
+      var mealRow = document.createElement("div");
+      mealRow.className = "form-row diet-row";
+      var mealLabel = document.createElement("label");
+      mealLabel.setAttribute("for", "p0-meal");
+      mealLabel.textContent = "Dinner choice";
+      var sel = document.createElement("select");
+      sel.className = "select";
+      sel.id = "p0-meal";
+      sel.dataset.meal = "1";
+      MEALS.forEach(function (m) {
+        var o = document.createElement("option");
+        o.textContent = m;
+        if (was && was.meal === m) o.selected = true;
+        sel.appendChild(o);
+      });
+      mealRow.appendChild(mealLabel);
+      mealRow.appendChild(sel);
+      details.appendChild(mealRow);
+    }
+
+    var dietRow = document.createElement("div");
+    dietRow.className = "form-row diet-row";
+    var dietLabel = document.createElement("label");
+    dietLabel.setAttribute("for", "p0-diet");
+    dietLabel.textContent = "Allergies or dietary needs";
+    var dietField = document.createElement("input");
+    dietField.className = "input";
+    dietField.id = "p0-diet";
+    dietField.dataset.diet = "1";
+    dietField.placeholder = "Optional";
+    if (was && was.dietary) dietField.value = was.dietary;
+    dietRow.appendChild(dietLabel);
+    dietRow.appendChild(dietField);
+    details.appendChild(dietRow);
+
+    details.hidden = !cb.checked;
+    cb.addEventListener("change", function () { details.hidden = !cb.checked; });
+    wrap.appendChild(details);
+    return wrap;
+  }
+
+  function guestBlock(name, key, was) {
     var wrap = document.createElement("div");
     wrap.className = "guest-block";
     wrap.dataset.guest = key;
     wrap.dataset.name = name;
-    wrap.dataset.type = isPlusOne ? "plus-one" : "adult";
+    wrap.dataset.type = "adult";
 
     var head = document.createElement("div");
     head.className = "guest-head";
@@ -1546,7 +1629,7 @@ html { scroll-behavior: smooth; }
       input.id = id;
       input.value = opt[0];
       if (was) input.checked = (was.attending === (opt[0] === "yes"));
-      else if (opt[0] === "yes" && !isPlusOne) input.checked = true;
+      else if (opt[0] === "yes") input.checked = true;
       var lb = document.createElement("label");
       lb.setAttribute("for", id);
       lb.textContent = opt[1];
@@ -1558,24 +1641,6 @@ html { scroll-behavior: smooth; }
     });
     head.appendChild(toggle);
     wrap.appendChild(head);
-
-    /* The name box sits outside `extras` so it is visible straight
-       away. Hidden behind the toggle it was easy to miss entirely. */
-    if (isPlusOne) {
-      var nameRow = document.createElement("div");
-      nameRow.className = "form-row diet-row";
-      var nameLabel = document.createElement("label");
-      nameLabel.setAttribute("for", key + "-name");
-      nameLabel.textContent = "Who are you bringing?";
-      var nameField = document.createElement("input");
-      nameField.className = "input";
-      nameField.id = key + "-name";
-      nameField.placeholder = "Their first and last name";
-      if (was && was.name && was.name !== "Your guest") nameField.value = was.name;
-      nameRow.appendChild(nameLabel);
-      nameRow.appendChild(nameField);
-      wrap.appendChild(nameRow);
-    }
 
     /* No caterer yet, so no dinner question. Fill MEALS in and it turns
        up here for everyone without another change. */
@@ -1614,7 +1679,6 @@ html { scroll-behavior: smooth; }
     dietRow.appendChild(dietField);
     extras.appendChild(dietRow);
 
-    if (isPlusOne && !(was && was.attending)) extras.hidden = true;
     wrap.appendChild(extras);
     return wrap;
   }
@@ -1639,6 +1703,21 @@ html { scroll-behavior: smooth; }
           dietary: attending && diet ? diet.value.trim() : ""
         });
       });
+
+    var po = document.querySelector("#guests [data-plusone]");
+    if (po) {
+      var poOn = po.querySelector("#p0-coming").checked;
+      var poName = po.querySelector("#p0-name").value.trim();
+      var poMeal = po.querySelector("[data-meal]");
+      var poDiet = po.querySelector("[data-diet]");
+      people.push({
+        name: poName || "Plus one",
+        type: "plus-one",
+        attending: poOn,
+        meal: poOn && poMeal ? poMeal.value : "",
+        dietary: poOn && poDiet ? poDiet.value.trim() : ""
+      });
+    }
 
     Array.prototype.forEach.call(
       document.querySelectorAll("#guests [data-child]"), function (cb) {
@@ -1709,7 +1788,7 @@ html { scroll-behavior: smooth; }
     /* A plus one who is coming needs a name — otherwise the seating
        chart has a blank in it. */
     var namelessGuest = answers.people.some(function (p) {
-      return p.type === "plus-one" && p.attending && p.name === "Your guest";
+      return p.type === "plus-one" && p.attending && p.name === "Plus one";
     });
     if (namelessGuest) {
       partyMsg.textContent = "Please add your guest's name.";
