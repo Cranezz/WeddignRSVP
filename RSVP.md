@@ -43,9 +43,18 @@ Put these headers in row 1 and leave the rest empty:
 
     timestamp | party_id | household | name | type | attending | meal | dietary | email
 
-One row per person. When someone changes their answer the old rows for
-that household are removed first, so the sheet always shows one current
-answer per person — safe to count directly.
+One row per person, with that person's own `dietary` note — the kitchen
+plates per head, so "no nuts for one of us" is no use without knowing
+which one.
+
+When someone changes their answer the old rows for that household are
+removed first, so the sheet always shows one current answer per person —
+safe to count directly.
+
+A household that has already replied is recognised on their next search:
+`doGet` returns their existing answers alongside the invitation, and the
+site shows the confirmation screen rather than an empty form. "Change
+our reply" opens the form with everything they said already filled in.
 
 ## The Apps Script
 
@@ -86,6 +95,34 @@ function readGuests() {
         plusOne: /^(y|yes|true|1)$/i.test(get('plus_one'))
       };
     });
+}
+
+// Existing answers, grouped by household, so a guest who already
+// replied is shown what they said instead of a blank form.
+function readReplies() {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(REPLIES);
+  const values = sh.getDataRange().getValues();
+  values.shift();
+
+  const byParty = {};
+  values.forEach(r => {
+    const id = String(r[1]).trim();
+    if (!id) return;
+    if (!byParty[id]) byParty[id] = { when: '', email: '', people: [] };
+
+    const when = (r[0] instanceof Date) ? r[0].toISOString() : String(r[0] || '');
+    if (when > byParty[id].when) byParty[id].when = when;
+    if (r[8]) byParty[id].email = String(r[8]).trim();
+
+    byParty[id].people.push({
+      name: String(r[3] || '').trim(),
+      type: String(r[4] || '').trim(),
+      attending: /^(y|yes|true|1)$/i.test(String(r[5] || '').trim()),
+      meal: String(r[6] || '').trim(),
+      dietary: String(r[7] || '').trim()
+    });
+  });
+  return byParty;
 }
 
 // ---- Name matching (mirrors the same functions in index.html) ----
@@ -139,6 +176,7 @@ function doGet(e) {
   const tokens = norm((e && e.parameter && e.parameter.q) || '').split(' ').filter(Boolean);
   if (!tokens.length) return json({ parties: [] });
 
+  const replies = readReplies();
   const scored = [];
   readGuests().forEach(p => {
     const words = norm([p.adults.join(' '), p.children.join(' '), p.household].join(' '))
@@ -149,6 +187,7 @@ function doGet(e) {
       if (s === null) return;
       total += s;
     }
+    p.reply = replies[p.id] || null;
     scored.push({ party: p, score: total });
   });
 
@@ -174,7 +213,7 @@ function doPost(e) {
       sh.appendRow([
         new Date(), data.partyId, data.household, p.name, p.type,
         p.attending ? 'yes' : 'no', p.meal || '',
-        data.dietary || '', data.email || ''
+        p.dietary || '', data.email || ''
       ]);
     });
 
@@ -182,8 +221,9 @@ function doPost(e) {
       const going = (data.people || []).filter(p => p.attending).length;
       MailApp.sendEmail(NOTIFY, 'RSVP: ' + data.household,
         data.household + ' replied — ' + going + ' attending.\n\n' +
-        (data.people || []).map(p => '  ' + p.name + ': ' + (p.attending ? 'yes' : 'no')).join('\n') +
-        (data.dietary ? '\n\nDietary: ' + data.dietary : ''));
+        (data.people || []).map(p =>
+          '  ' + p.name + ': ' + (p.attending ? 'yes' : 'no') +
+          (p.dietary ? '  (' + p.dietary + ')' : '')).join('\n'));
     }
 
     return json({ ok: true });

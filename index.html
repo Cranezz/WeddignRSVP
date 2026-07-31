@@ -355,63 +355,28 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
    REGISTRY
    ============================================================ */
 
-.reg-card {
-  border: 1px solid rgba(168,135,90,.45);
-  padding: 1.4rem 1.2rem;
-  text-align: left;
-  margin-top: 1.3rem;
+/* Two halves of one card, separated by a rule rather than each being
+   boxed — two nested borders made the section read twice as tall as it
+   needed to. */
+.reg-half { text-align: left; }
+.reg-half + .reg-half {
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgba(168,135,90,.4);
 }
-.reg-card:first-of-type { margin-top: 0; }
-.reg-card h3 {
-  font-family: var(--f-display);
-  font-weight: 400;
-  font-size: 1.25rem;
-  margin: .25rem 0 .7rem;
-  color: var(--ink);
-}
-.reg-card > p { margin: 0 0 .9rem; font-size: .92rem; color: var(--ink-soft); }
-.reg-card .btn { display: block; width: 100%; text-align: center; }
-
-/* The "never used a registry before?" explainer. */
-.how {
-  background: rgba(168,135,90,.13);
-  border-left: 2px solid var(--brass);
-  padding: .85rem 1rem;
-  font-size: .86rem;
-  color: var(--ink);
-  margin: 0 0 1.1rem;
-}
-.how strong {
-  display: block;
-  font-family: var(--f-caps);
-  font-size: .6rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--brass);
-  margin-bottom: .35rem;
-}
-
-.soon {
-  font-family: var(--f-body);
-  font-style: italic;
-  font-size: .86rem;
-  color: var(--ink-soft);
-  border: 1px dashed rgba(168,135,90,.6);
-  padding: .8rem .9rem;
-  text-align: center;
-  margin: 0;
-}
+.reg-blurb { margin: .3rem 0 .9rem; font-size: .9rem; color: var(--ink-soft); }
+.reg-half > .btn { display: block; width: 100%; text-align: center; }
 
 /* ---- Amount picker ---- */
 
 .gift-display {
   font-family: var(--f-display);
-  font-size: clamp(2.2rem, 11vw, 2.9rem);
+  font-size: 2.1rem;
   color: var(--ink);
   text-align: center;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
-  margin: .2rem 0 0;
+  margin: .3rem 0 0;
 }
 
 .slider {
@@ -420,7 +385,7 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   width: 100%;
   height: 3px;
   background: rgba(168,135,90,.35);
-  margin: 1.1rem 0 .35rem;
+  margin: .8rem 0 .3rem;
   cursor: pointer;
 }
 .slider::-webkit-slider-thumb {
@@ -453,12 +418,10 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   letter-spacing: .12em;
   color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
-  margin-bottom: 1.1rem;
+  margin-bottom: .8rem;
 }
 
-/* Four equal columns, so the chips stay on one row at any phone width
-   instead of orphaning the last one. */
-.amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin: 0 0 1.1rem; }
+.amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin: 0 0 .8rem; }
 .amounts button {
   font-family: var(--f-caps);
   font-size: .72rem;
@@ -473,6 +436,10 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
 }
 .amounts button[aria-pressed="true"] { background: var(--oxblood); color: var(--lace); border-color: var(--oxblood); }
 
+/* Amount and name sit side by side once there's room for them. */
+.gift-fields { display: grid; gap: .7rem; margin-bottom: .9rem; }
+@media (min-width: 26rem) { .gift-fields { grid-template-columns: 1fr 1.4fr; } }
+
 .gift-thanks {
   background: rgba(168,135,90,.13);
   border-left: 2px solid var(--brass);
@@ -481,6 +448,11 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   color: var(--ink);
   margin: 1rem 0 0;
 }
+
+/* ---- Per-person dietary ---- */
+
+.diet-row { margin-top: .1rem; }
+.diet-row input { font-size: .92rem; padding: .55rem .7rem; }
 
 /* ============================================================
    SCHEDULE
@@ -893,13 +865,6 @@ html { scroll-behavior: smooth; }
 
             <div class="guest-block">
               <div class="form-row">
-                <label for="notes">Allergies or dietary needs</label>
-                <textarea class="textarea" id="notes" placeholder="Anything the kitchen should know"></textarea>
-              </div>
-            </div>
-
-            <div class="guest-block">
-              <div class="form-row">
                 <label for="email">Email for your confirmation</label>
                 <input class="input" id="email" type="email" placeholder="you@example.com">
               </div>
@@ -922,7 +887,7 @@ html { scroll-behavior: smooth; }
           <h2 class="sec-title" id="done-title">Thank you</h2>
           <div class="rule"><i></i></div>
           <p id="done-body" style="color:var(--ink);"></p>
-          <p class="sub" style="margin-bottom:1.4rem;">A confirmation is on its way to your inbox.</p>
+          <p class="sub" id="done-sub" style="margin-bottom:1.4rem;"></p>
           <button class="btn ghost" type="button" id="restart">Change our reply</button>
         </div>
 
@@ -940,59 +905,47 @@ html { scroll-behavior: smooth; }
         <h2 class="sec-title">Registry</h2>
         <div class="rule"><i></i></div>
 
-        <p class="lede" style="margin:0 0 1.5rem;">Your being there is the gift. If you'd like to give something as well, there are two ways.</p>
+        <p class="lede" style="margin:0 0 1.4rem;">Your being there is the gift. If you'd like to give something as well:</p>
 
-        <div class="reg-card">
+        <div class="reg-half">
           <p class="detail-h">Something for the house</p>
-          <h3>Our Amazon registry</h3>
-
-          <div class="how">
-            <strong>If you haven't used one before</strong>
-            A registry is just a list of things we'd find useful, so you don't have to guess. Open it, pick anything on the list, and buy it the way you'd buy anything else on Amazon. It ships straight to us &mdash; you won't need our address &mdash; and once it's bought it comes off the list, so nobody ends up giving us two of the same thing.
-          </div>
-
-          <a class="btn" id="amazon-link"
+          <p class="reg-blurb">A list of things we'd find useful. It ships straight to us, and comes off the list once it's bought.</p>
+          <a class="btn ghost" id="amazon-link"
              href="https://www.amazon.com/wedding/guest-view/2C62WFP0WYN3U"
-             target="_blank" rel="noopener">Open our registry</a>
+             target="_blank" rel="noopener">Open our Amazon registry</a>
         </div>
 
-        <div class="reg-card">
+        <div class="reg-half">
           <p class="detail-h">A cash gift</p>
-          <h3>Venmo</h3>
-          <p>Toward the honeymoon and the day itself. Any amount is generous, and no amount is expected.</p>
+          <p class="reg-blurb">Toward the honeymoon and the day itself. Any amount is generous.</p>
 
-          <div id="gift-live">
-            <div class="gift-display" id="gift-display">$50</div>
+          <div class="gift-display" id="gift-display">$50</div>
 
-            <input class="slider" id="gift-slider" type="range" min="5" max="500" step="5" value="50"
-                   aria-label="Gift amount in dollars">
-            <div class="slider-ends"><span>$5</span><span>$500</span></div>
+          <input class="slider" id="gift-slider" type="range" min="5" max="500" step="5" value="50"
+                 aria-label="Gift amount in dollars">
+          <div class="slider-ends"><span>$5</span><span>$500</span></div>
 
-            <div class="amounts" id="gift-chips" role="group" aria-label="Common amounts"></div>
+          <div class="amounts" id="gift-chips" role="group" aria-label="Common amounts"></div>
 
-            <div class="form-row" style="margin-bottom:.8rem;">
-              <label for="gift-amount">Or type an amount</label>
+          <div class="gift-fields">
+            <div class="form-row">
+              <label for="gift-amount">Other amount</label>
               <input class="input" id="gift-amount" type="number" min="1" max="10000" step="1"
                      inputmode="numeric" value="50">
             </div>
-
-            <div class="form-row" style="margin-bottom:1rem;">
-              <label for="gift-name">Your name, so we can match it up</label>
-              <input class="input" id="gift-name" autocomplete="name" placeholder="First and last name">
+            <div class="form-row">
+              <label for="gift-name">Your name</label>
+              <input class="input" id="gift-name" autocomplete="name" placeholder="So we can match it up">
             </div>
-
-            <a class="btn" id="gift-go" href="https://venmo.com/u/Logan-Crane-23"
-               target="_blank" rel="noopener">Continue to Venmo</a>
-
-            <p class="sub" style="margin-top:.8rem;">Venmo will open with the amount filled in. If it doesn't carry across, just type it in there.</p>
           </div>
 
+          <a class="btn" id="gift-go" href="https://venmo.com/u/Logan-Crane-23"
+             target="_blank" rel="noopener">Continue to Venmo</a>
+
+          <p class="sub" style="margin-top:.7rem;">Venmo opens with the amount filled in.</p>
           <div class="gift-thanks" id="gift-thanks" hidden></div>
         </div>
 
-        <div class="demo-note">
-          <p><strong>Still being built:</strong> Venmo gifts aren't logged to a spreadsheet yet. The Amazon registry and the Venmo hand-off are both live.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -1420,13 +1373,46 @@ html { scroll-behavior: smooth; }
     });
   }
 
-  function open(party) {
-    current = party;
-    render(party);
-    show("party");
+  function priorReply(party) {
+    var r = party && party.reply;
+    return (r && r.people && r.people.length) ? r : null;
   }
 
-  function render(party) {
+  /* Someone who has already replied should see what they said, not a
+     blank form they might half-fill and resubmit. "Change our reply"
+     takes them to the form with their answers already in it. */
+  function open(party) {
+    current = party;
+    var prior = priorReply(party);
+    if (prior) {
+      renderDone(prior.people, prior.when);
+      show("done");
+    } else {
+      render(party, null);
+      show("party");
+    }
+  }
+
+  /* Finds what this person said last time. The plus one is matched on
+     type, not name — the stored name is whoever they brought, which
+     won't match the "Your guest" placeholder. */
+  function priorFor(prior, name, type) {
+    if (!prior) return null;
+    var people = prior.people || [];
+    var i;
+    if (type === "plus-one") {
+      for (i = 0; i < people.length; i++) {
+        if (people[i].type === "plus-one") return people[i];
+      }
+      return null;
+    }
+    for (i = 0; i < people.length; i++) {
+      if (people[i].type === type && people[i].name === name) return people[i];
+    }
+    return null;
+  }
+
+  function render(party, prior) {
     document.getElementById("greeting").textContent = party.household;
 
     var adults = party.adults || [];
@@ -1441,8 +1427,14 @@ html { scroll-behavior: smooth; }
     var host = document.getElementById("guests");
     host.innerHTML = "";
 
-    adults.forEach(function (name, i) { host.appendChild(guestBlock(name, "a" + i, false)); });
-    if (party.plusOne) host.appendChild(guestBlock("Your guest", "p0", true));
+    adults.forEach(function (name, i) {
+      host.appendChild(guestBlock(name, "a" + i, false, priorFor(prior, name, "adult")));
+    });
+    if (party.plusOne) {
+      host.appendChild(guestBlock("Your guest", "p0", true, priorFor(prior, null, "plus-one")));
+    }
+
+    document.getElementById("email").value = (prior && prior.email) || "";
 
     if (children.length) {
       var kids = document.createElement("div");
@@ -1453,12 +1445,14 @@ html { scroll-behavior: smooth; }
       head.textContent = "Children attending";
       kids.appendChild(head);
       children.forEach(function (name, i) {
+        var was = priorFor(prior, name, "child");
+
         var row = document.createElement("div");
         row.className = "kid-row";
         var cb = document.createElement("input");
         cb.type = "checkbox";
         cb.id = "kid" + i;
-        cb.checked = true;
+        cb.checked = was ? was.attending : true;
         cb.dataset.child = name;
         var lb = document.createElement("label");
         lb.setAttribute("for", "kid" + i);
@@ -1466,6 +1460,21 @@ html { scroll-behavior: smooth; }
         row.appendChild(cb);
         row.appendChild(lb);
         kids.appendChild(row);
+
+        /* Children get allergies too, and the kitchen plates per head. */
+        var diet = document.createElement("div");
+        diet.className = "form-row diet-row";
+        var di = document.createElement("input");
+        di.className = "input";
+        di.id = "kid" + i + "-diet";
+        di.placeholder = "Allergies or dietary needs (optional)";
+        di.dataset.childDiet = name;
+        di.value = (was && was.dietary) || "";
+        diet.appendChild(di);
+        diet.hidden = !cb.checked;
+        kids.appendChild(diet);
+
+        cb.addEventListener("change", function () { diet.hidden = !cb.checked; });
       });
       var note = document.createElement("p");
       note.className = "sub";
@@ -1475,7 +1484,7 @@ html { scroll-behavior: smooth; }
     }
   }
 
-  function guestBlock(name, key, isPlusOne) {
+  function guestBlock(name, key, isPlusOne, was) {
     var wrap = document.createElement("div");
     wrap.className = "guest-block";
     wrap.dataset.guest = key;
@@ -1506,7 +1515,8 @@ html { scroll-behavior: smooth; }
       input.name = key;
       input.id = id;
       input.value = opt[0];
-      if (opt[0] === "yes" && !isPlusOne) input.checked = true;
+      if (was) input.checked = (was.attending === (opt[0] === "yes"));
+      else if (opt[0] === "yes" && !isPlusOne) input.checked = true;
       var lb = document.createElement("label");
       lb.setAttribute("for", id);
       lb.textContent = opt[1];
@@ -1529,6 +1539,7 @@ html { scroll-behavior: smooth; }
       nameField.className = "input";
       nameField.id = key + "-name";
       nameField.placeholder = "First and last name";
+      if (was && was.name) nameField.value = was.name;
       nameRow.appendChild(nameLabel);
       nameRow.appendChild(nameField);
       extras.appendChild(nameRow);
@@ -1556,7 +1567,22 @@ html { scroll-behavior: smooth; }
       extras.appendChild(mealRow);
     }
 
-    if (isPlusOne) extras.hidden = true;
+    var dietRow = document.createElement("div");
+    dietRow.className = "form-row diet-row";
+    var dietLabel = document.createElement("label");
+    dietLabel.setAttribute("for", key + "-diet");
+    dietLabel.textContent = "Allergies or dietary needs";
+    var dietField = document.createElement("input");
+    dietField.className = "input";
+    dietField.id = key + "-diet";
+    dietField.dataset.diet = "1";
+    dietField.placeholder = "Optional";
+    if (was && was.dietary) dietField.value = was.dietary;
+    dietRow.appendChild(dietLabel);
+    dietRow.appendChild(dietField);
+    extras.appendChild(dietRow);
+
+    if (isPlusOne && !(was && was.attending)) extras.hidden = true;
     wrap.appendChild(extras);
     return wrap;
   }
@@ -1572,21 +1598,25 @@ html { scroll-behavior: smooth; }
         var attending = !!picked && picked.value === "yes";
         var typed = block.querySelector("#" + key + "-name");
         var meal = block.querySelector("[data-meal]");
+        var diet = block.querySelector("[data-diet]");
         people.push({
           name: (typed && typed.value.trim()) || block.dataset.name,
           type: block.dataset.type,
           attending: attending,
-          meal: attending && meal ? meal.value : ""
+          meal: attending && meal ? meal.value : "",
+          dietary: attending && diet ? diet.value.trim() : ""
         });
       });
 
     Array.prototype.forEach.call(
       document.querySelectorAll("#guests [data-child]"), function (cb) {
+        var diet = document.querySelector('[data-child-diet="' + cb.dataset.child + '"]');
         people.push({
           name: cb.dataset.child,
           type: "child",
           attending: cb.checked,
-          meal: ""
+          meal: "",
+          dietary: cb.checked && diet ? diet.value.trim() : ""
         });
       });
 
@@ -1594,9 +1624,44 @@ html { scroll-behavior: smooth; }
       partyId: current ? current.id : "",
       household: current ? current.household : "",
       people: people,
-      dietary: document.getElementById("notes").value.trim(),
       email: document.getElementById("email").value.trim()
     };
+  }
+
+  function formatWhen(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  }
+
+  /* Shown both after sending and when a household that already replied
+     searches again. `when` is only set in the second case. */
+  function renderDone(people, when) {
+    var going = people.filter(function (p) { return p.attending; });
+    var kids = going.filter(function (p) { return p.type === "child"; }).length;
+    var seats = going.length - kids;
+
+    var title = document.getElementById("done-title");
+    var body = document.getElementById("done-body");
+    var sub = document.getElementById("done-sub");
+
+    if (!going.length) {
+      title.textContent = "We'll miss you";
+      body.textContent = "Thank you for letting us know. We're sorry you can't be there, " +
+        "and we'll be thinking of you.";
+    } else {
+      title.textContent = "We can't wait";
+      var parts = [seats + (seats === 1 ? " seat" : " seats")];
+      if (kids) parts.push(kids + (kids === 1 ? " child" : " children"));
+      body.textContent = "You're down for " + parts.join(" and ") +
+        " on Saturday, June 19th. Doors open at half past three.";
+    }
+
+    var stamp = when ? formatWhen(when) : "";
+    sub.textContent = when
+      ? "You replied" + (stamp ? " on " + stamp : "") +
+        ". You can still change this before the twenty-second of May."
+      : "A confirmation is on its way to your inbox.";
   }
 
   var partyForm = document.getElementById("party-form");
@@ -1607,7 +1672,6 @@ html { scroll-behavior: smooth; }
     e.preventDefault();
 
     var answers = collectAnswers();
-    var going = answers.people.filter(function (p) { return p.attending; });
 
     /* A plus one who is coming needs a name — otherwise the seating
        chart has a blank in it. */
@@ -1627,22 +1691,17 @@ html { scroll-behavior: smooth; }
       partyBtn.disabled = false;
       partyBtn.textContent = "Send our reply";
 
-      var title = document.getElementById("done-title");
-      var body = document.getElementById("done-body");
-      var kids = going.filter(function (p) { return p.type === "child"; }).length;
-      var seats = going.length - kids;
-
-      if (!going.length) {
-        title.textContent = "We'll miss you";
-        body.textContent = "Thank you for letting us know. We're sorry you can't be there, " +
-          "and we'll be thinking of you.";
-      } else {
-        title.textContent = "We can't wait";
-        var parts = [seats + (seats === 1 ? " seat" : " seats")];
-        if (kids) parts.push(kids + (kids === 1 ? " child" : " children"));
-        body.textContent = "You're down for " + parts.join(" and ") +
-          " on Saturday, June 19th. Doors open at half past three.";
+      /* Hold onto it locally as well, so "Change our reply" straight
+         after sending comes back with the new answers, not the old. */
+      if (current) {
+        current.reply = {
+          people: answers.people,
+          email: answers.email,
+          when: new Date().toISOString()
+        };
       }
+
+      renderDone(answers.people, null);
       show("done");
     }).catch(function () {
       partyBtn.disabled = false;
@@ -1661,8 +1720,9 @@ html { scroll-behavior: smooth; }
   });
 
   document.getElementById("restart").addEventListener("click", function () {
-    if (current) { render(current); show("party"); }
-    else show("find");
+    if (!current) { show("find"); return; }
+    render(current, priorReply(current));
+    show("party");
   });
 
   /* The sample-invitation buttons are only useful before the sheet is
