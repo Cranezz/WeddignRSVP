@@ -9,13 +9,13 @@ Amazon owns the checkout, so it marks items purchased by itself, hides
 the shipping address from guests, and offers group gifting on expensive
 items. Nothing to build — the site links out.
 
-The registry URL goes in `index.html`, replacing the `.soon` placeholder
-inside the first `.reg-card` with a link:
+Live at:
 
-```html
-<a class="btn" href="https://www.amazon.com/wedding/registry/YOUR-ID"
-   target="_blank" rel="noopener">Open our registry</a>
-```
+    https://www.amazon.com/wedding/guest-view/2C62WFP0WYN3U
+
+That is the *guest view* — the logged-out page guests see. Worth opening
+it in a private window occasionally to check it still resolves without a
+sign-in prompt, since that is the state every guest will be in.
 
 ## Venmo
 
