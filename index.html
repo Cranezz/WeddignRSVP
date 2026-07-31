@@ -1122,14 +1122,35 @@ html { scroll-behavior: smooth; }
      rather than leaving the guest looking at a blank field. */
   giftField.addEventListener("blur", function () { setGift(giftAmount, "none"); });
 
+  /* Venmo opens in a new tab so this page survives the click, but a
+     beacon is used where it exists so the write still lands if the
+     browser decides to freeze us anyway. Failures are swallowed: a
+     missed log entry must never get between a guest and paying. */
+  function logGift(payload) {
+    if (!RSVP_API) return;
+    var body = JSON.stringify(payload);
+    if (navigator.sendBeacon) {
+      try {
+        navigator.sendBeacon(RSVP_API, new Blob([body], { type: "text/plain;charset=utf-8" }));
+        return;
+      } catch (err) { /* fall through */ }
+    }
+    fetch(RSVP_API, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: body,
+      keepalive: true
+    }).catch(function () {});
+  }
+
   giftGo.addEventListener("click", function () {
-    /* Logging the pledge happens here. Once the Apps Script is wired up
-       this posts amount, name and timestamp to the Gifts tab. */
     var who = giftNameEl.value.trim();
     var thanks = document.getElementById("gift-thanks");
     thanks.textContent = "Thank you" + (who ? ", " + who : "") +
       " — we've noted " + dollars(giftAmount) + " and we'll watch for it on Venmo.";
     thanks.hidden = false;
+
+    logGift({ kind: "gift", name: who, amount: giftAmount });
   });
 
   setGift(50, "init");
@@ -1276,7 +1297,15 @@ html { scroll-behavior: smooth; }
         if (!r.ok) throw new Error("HTTP " + r.status);
         return r.json();
       })
-      .then(function (data) { return data.parties || []; });
+      .then(function (data) {
+        /* A configuration problem on the sheet must not look like
+           "we can't find you" — that sends guests away for good. */
+        if (data && data.error) {
+          if (window.console) console.warn("Guest list error:", data.error);
+          throw new Error(data.error);
+        }
+        return (data && data.parties) || [];
+      });
   }
 
   function saveRsvp(payload) {
@@ -1434,6 +1463,7 @@ html { scroll-behavior: smooth; }
       host.appendChild(guestBlock("Your guest", "p0", true, priorFor(prior, null, "plus-one")));
     }
 
+
     document.getElementById("email").value = (prior && prior.email) || "";
 
     if (children.length) {
@@ -1529,20 +1559,22 @@ html { scroll-behavior: smooth; }
     head.appendChild(toggle);
     wrap.appendChild(head);
 
+    /* The name box sits outside `extras` so it is visible straight
+       away. Hidden behind the toggle it was easy to miss entirely. */
     if (isPlusOne) {
       var nameRow = document.createElement("div");
-      nameRow.className = "form-row";
+      nameRow.className = "form-row diet-row";
       var nameLabel = document.createElement("label");
       nameLabel.setAttribute("for", key + "-name");
-      nameLabel.textContent = "Your guest's full name";
+      nameLabel.textContent = "Who are you bringing?";
       var nameField = document.createElement("input");
       nameField.className = "input";
       nameField.id = key + "-name";
-      nameField.placeholder = "First and last name";
-      if (was && was.name) nameField.value = was.name;
+      nameField.placeholder = "Their first and last name";
+      if (was && was.name && was.name !== "Your guest") nameField.value = was.name;
       nameRow.appendChild(nameLabel);
       nameRow.appendChild(nameField);
-      extras.appendChild(nameRow);
+      wrap.appendChild(nameRow);
     }
 
     /* No caterer yet, so no dinner question. Fill MEALS in and it turns
@@ -1621,6 +1653,7 @@ html { scroll-behavior: smooth; }
       });
 
     return {
+      kind: "rsvp",
       partyId: current ? current.id : "",
       household: current ? current.household : "",
       people: people,

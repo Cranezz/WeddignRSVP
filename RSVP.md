@@ -56,6 +56,17 @@ A household that has already replied is recognised on their next search:
 site shows the confirmation screen rather than an empty form. "Change
 our reply" opens the form with everything they said already filled in.
 
+### Tab `Gifts` — written by the script
+
+Headers in row 1, nothing else:
+
+    timestamp | name | amount | confirmed
+
+Written when someone taps "Continue to Venmo". It records what they
+*said* they were sending — nobody has paid anything at that moment. Check
+Venmo, then put a yes in `confirmed`. Treat the rest as a to-do list, not
+as money.
+
 ## The Apps Script
 
 In the spreadsheet: **Extensions → Apps Script**. Delete what's there and
@@ -64,6 +75,7 @@ paste this.
 ```js
 const GUESTS  = 'Guests';
 const REPLIES = 'Replies';
+const GIFTS   = 'Gifts';
 const NOTIFY  = 'lcrane644@gmail.com';   // '' to turn emails off
 
 function json(obj) {
@@ -72,54 +84,92 @@ function json(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function tab(name) {
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  if (!sh) throw new Error('No tab named "' + name + '"');
+  return sh;
+}
+
 function norm(s) {
   return String(s || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-function readGuests() {
-  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(GUESTS);
-  const values = sh.getDataRange().getValues();
-  const head = values.shift().map(h => String(h).trim().toLowerCase());
-  const col = name => head.indexOf(name);
-
-  return values
-    .filter(r => String(r[col('id')]).trim() !== '')
-    .map(r => {
-      const get  = k => String(r[col(k)] == null ? '' : r[col(k)]).trim();
-      const list = k => get(k).split(',').map(s => s.trim()).filter(Boolean);
-      return {
-        id: get('id'),
-        household: get('household'),
-        adults: list('adults'),
-        children: list('children'),
-        plusOne: /^(y|yes|true|1)$/i.test(get('plus_one'))
-      };
-    });
+// Headers, forgiving about capitals, spaces and punctuation, so
+// "Plus One", "plus-one" and "plus_one" all find the same column.
+// Getting this wrong used to fail silently — a mistyped header just
+// made everyone look like they had no plus one and no children.
+function headerIndex(row) {
+  const map = {};
+  row.forEach((h, i) => {
+    const key = String(h).toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    if (key && map[key] === undefined) map[key] = i;
+  });
+  return map;
 }
 
-// Existing answers, grouped by household, so a guest who already
+function pick(map, names, required) {
+  for (const n of names) if (map[n] !== undefined) return map[n];
+  if (required) {
+    throw new Error('The ' + GUESTS + ' tab has no "' + names[0] +
+      '" column. Columns found: ' + Object.keys(map).join(', '));
+  }
+  return -1;
+}
+
+const cell = (r, i) => (i < 0 || r[i] == null) ? '' : String(r[i]).trim();
+const list = (r, i) => cell(r, i).split(',').map(s => s.trim()).filter(Boolean);
+const yes  = v => /^(y|yes|true|1)$/i.test(String(v).trim());
+
+function readGuests() {
+  const values = tab(GUESTS).getDataRange().getValues();
+  if (!values.length) return [];
+  const map = headerIndex(values.shift());
+
+  const cId    = pick(map, ['id'], true);
+  const cHouse = pick(map, ['household', 'family', 'name'], true);
+  const cAdult = pick(map, ['adults', 'adult', 'guests'], true);
+  const cKids  = pick(map, ['children', 'child', 'kids']);
+  const cPlus  = pick(map, ['plus_one', 'plusone', 'plus_1', 'plus']);
+
+  return values
+    .filter(r => cell(r, cId) !== '')
+    .map(r => ({
+      id: cell(r, cId),
+      household: cell(r, cHouse),
+      adults: list(r, cAdult),
+      children: list(r, cKids),
+      plusOne: yes(cell(r, cPlus))
+    }));
+}
+
+// Existing answers grouped by household, so a guest who already
 // replied is shown what they said instead of a blank form.
 function readReplies() {
-  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(REPLIES);
-  const values = sh.getDataRange().getValues();
-  values.shift();
+  const values = tab(REPLIES).getDataRange().getValues();
+  if (values.length < 2) return {};
+  const map = headerIndex(values.shift());
+  const c = k => (map[k] === undefined ? -1 : map[k]);
 
   const byParty = {};
   values.forEach(r => {
-    const id = String(r[1]).trim();
+    const id = cell(r, c('party_id'));
     if (!id) return;
     if (!byParty[id]) byParty[id] = { when: '', email: '', people: [] };
 
-    const when = (r[0] instanceof Date) ? r[0].toISOString() : String(r[0] || '');
+    const raw = c('timestamp') >= 0 ? r[c('timestamp')] : '';
+    const when = (raw instanceof Date) ? raw.toISOString() : String(raw || '');
     if (when > byParty[id].when) byParty[id].when = when;
-    if (r[8]) byParty[id].email = String(r[8]).trim();
+
+    const em = cell(r, c('email'));
+    if (em) byParty[id].email = em;
 
     byParty[id].people.push({
-      name: String(r[3] || '').trim(),
-      type: String(r[4] || '').trim(),
-      attending: /^(y|yes|true|1)$/i.test(String(r[5] || '').trim()),
-      meal: String(r[6] || '').trim(),
-      dietary: String(r[7] || '').trim()
+      name: cell(r, c('name')),
+      type: cell(r, c('type')),
+      attending: yes(cell(r, c('attending'))),
+      meal: cell(r, c('meal')),
+      dietary: cell(r, c('dietary'))
     });
   });
   return byParty;
@@ -173,26 +223,33 @@ function tokenScore(token, words) {
 // Every word typed must land somewhere in the household. The total is
 // how far off the query was overall — lower sorts first.
 function doGet(e) {
-  const tokens = norm((e && e.parameter && e.parameter.q) || '').split(' ').filter(Boolean);
-  if (!tokens.length) return json({ parties: [] });
+  try {
+    const tokens = norm((e && e.parameter && e.parameter.q) || '').split(' ').filter(Boolean);
+    if (!tokens.length) return json({ parties: [] });
 
-  const replies = readReplies();
-  const scored = [];
-  readGuests().forEach(p => {
-    const words = norm([p.adults.join(' '), p.children.join(' '), p.household].join(' '))
-      .split(' ').filter(Boolean);
-    let total = 0;
-    for (const t of tokens) {
-      const s = tokenScore(t, words);
-      if (s === null) return;
-      total += s;
-    }
-    p.reply = replies[p.id] || null;
-    scored.push({ party: p, score: total });
-  });
+    const replies = readReplies();
+    const scored = [];
 
-  scored.sort((a, b) => a.score - b.score);
-  return json({ parties: scored.map(s => s.party) });
+    readGuests().forEach(p => {
+      const words = norm([p.adults.join(' '), p.children.join(' '), p.household].join(' '))
+        .split(' ').filter(Boolean);
+      let total = 0;
+      for (const t of tokens) {
+        const s = tokenScore(t, words);
+        if (s === null) return;
+        total += s;
+      }
+      p.reply = replies[p.id] || null;
+      scored.push({ party: p, score: total });
+    });
+
+    scored.sort((a, b) => a.score - b.score);
+    return json({ parties: scored.map(s => s.party) });
+  } catch (err) {
+    // Reported rather than swallowed: a bad header must not look to a
+    // guest like "we can't find you".
+    return json({ parties: [], error: String(err) });
+  }
 }
 
 function doPost(e) {
@@ -200,38 +257,65 @@ function doPost(e) {
   lock.waitLock(20000);
   try {
     const data = JSON.parse(e.postData.contents);
-    const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(REPLIES);
-    const values = sh.getDataRange().getValues();
-
-    // Clear this household's previous answer. Walk backwards — deleting
-    // a row shifts everything below it up.
-    for (let i = values.length - 1; i >= 1; i--) {
-      if (String(values[i][1]) === String(data.partyId)) sh.deleteRow(i + 1);
-    }
-
-    (data.people || []).forEach(p => {
-      sh.appendRow([
-        new Date(), data.partyId, data.household, p.name, p.type,
-        p.attending ? 'yes' : 'no', p.meal || '',
-        p.dietary || '', data.email || ''
-      ]);
-    });
-
-    if (NOTIFY) {
-      const going = (data.people || []).filter(p => p.attending).length;
-      MailApp.sendEmail(NOTIFY, 'RSVP: ' + data.household,
-        data.household + ' replied — ' + going + ' attending.\n\n' +
-        (data.people || []).map(p =>
-          '  ' + p.name + ': ' + (p.attending ? 'yes' : 'no') +
-          (p.dietary ? '  (' + p.dietary + ')' : '')).join('\n'));
-    }
-
-    return json({ ok: true });
+    return data.kind === 'gift' ? saveGift(data) : saveRsvp(data);
   } catch (err) {
     return json({ ok: false, error: String(err) });
   } finally {
     lock.releaseLock();
   }
+}
+
+function saveRsvp(data) {
+  const sh = tab(REPLIES);
+  const values = sh.getDataRange().getValues();
+  const map = headerIndex(values[0] || []);
+  const cParty = map['party_id'] === undefined ? 1 : map['party_id'];
+
+  // Clear this household's previous answer, remembering whether there
+  // was one. Walk backwards — deleting a row shifts the rest up.
+  let hadPrior = false;
+  for (let i = values.length - 1; i >= 1; i--) {
+    if (String(values[i][cParty]).trim() === String(data.partyId)) {
+      sh.deleteRow(i + 1);
+      hadPrior = true;
+    }
+  }
+
+  (data.people || []).forEach(p => {
+    sh.appendRow([
+      new Date(), data.partyId, data.household, p.name, p.type,
+      p.attending ? 'yes' : 'no', p.meal || '',
+      p.dietary || '', data.email || ''
+    ]);
+  });
+
+  if (NOTIFY) {
+    const going = (data.people || []).filter(p => p.attending).length;
+    MailApp.sendEmail(NOTIFY,
+      (hadPrior ? 'RSVP changed: ' : 'RSVP: ') + data.household,
+      data.household + (hadPrior ? ' changed their answer' : ' replied') +
+      ' \u2014 ' + going + ' attending.\n\n' +
+      (data.people || []).map(p =>
+        '  ' + p.name + ' (' + p.type + '): ' + (p.attending ? 'yes' : 'no') +
+        (p.dietary ? '  \u2014 ' + p.dietary : '')).join('\n') +
+      (data.email ? '\n\nContact: ' + data.email : ''));
+  }
+
+  return json({ ok: true, updated: hadPrior });
+}
+
+function saveGift(data) {
+  const amount = Number(data.amount) || 0;
+  tab(GIFTS).appendRow([new Date(), data.name || '', amount, '']);
+
+  if (NOTIFY) {
+    MailApp.sendEmail(NOTIFY, 'Venmo gift: $' + amount,
+      (data.name || 'Someone') + ' said they are sending $' + amount + ' by Venmo.\n\n' +
+      'This is only what they told the website. Check Venmo, then put a yes in ' +
+      'the confirmed column.');
+  }
+
+  return json({ ok: true });
 }
 ```
 
@@ -277,6 +361,25 @@ every attending guest, and flows through to the `meal` column:
 ```js
 var MEALS = ["Chicken", "Beef", "Vegetarian"];
 ```
+
+## Checking it works
+
+Open the `/exec` URL in a browser with a real guest's name on the end:
+
+    ...exec?q=smith
+
+You should see JSON. What's in it tells you exactly what is wrong:
+
+- **`{"parties":[],"error":"..."}`** — the message names the problem,
+  usually a missing or misspelled column or tab.
+- **A sign-in page instead of JSON** — the deployment is set to "Anyone
+  with a Google Account". Change it to "Anyone".
+- **`"plusOne":false` for someone who should have one** — the `plus_one`
+  cell isn't `yes`, or that column is missing.
+- **`"reply":null` for a household that has already replied** — either
+  the script hasn't been redeployed, or `party_id` in `Replies` doesn't
+  match `id` in `Guests`.
+- **No `reply` key at all** — the old script is still live. Redeploy.
 
 ## Known limits
 
