@@ -62,8 +62,12 @@ Headers in row 1, nothing else:
 
     timestamp | name | amount | confirmed
 
-Written when someone taps "Continue to Venmo". It records what they
-*said* they were sending — nobody has paid anything at that moment. Check
+Written when someone taps "Continue to Venmo". The name box on the site
+is optional, so a blank one is recorded as `Unknown` rather than being
+skipped — Venmo will tell you who it was, and an unlabelled row you can
+reconcile beats no row at all.
+
+It records what they *said* they were sending — nobody has paid anything at that moment. Check
 Venmo, then put a yes in `confirmed`. Treat the rest as a to-do list, not
 as money.
 
@@ -75,7 +79,7 @@ paste this.
 ```js
 // Bumped whenever this file changes. doGet reports it, so you can tell
 // at a glance whether the deployment is running the current code.
-const VERSION = 4;
+const VERSION = 5;
 
 const GUESTS  = 'Guests';
 const REPLIES = 'Replies';
@@ -328,11 +332,16 @@ function saveRsvp(data) {
 
 function saveGift(data) {
   const amount = Number(data.amount) || 0;
-  tab(GIFTS).appendRow([new Date(), data.name || '', amount, '']);
+  // The name box is optional, so a blank one still gets a row — Venmo
+  // will tell you who it was. An unlabelled row you can reconcile beats
+  // no row at all.
+  const who = String(data.name || '').trim() || 'Unknown';
+
+  tab(GIFTS).appendRow([new Date(), who, amount, '']);
 
   if (NOTIFY) {
     MailApp.sendEmail(NOTIFY, 'Venmo gift: $' + amount,
-      (data.name || 'Someone') + ' said they are sending $' + amount + ' by Venmo.\n\n' +
+      who + ' said they are sending $' + amount + ' by Venmo.\n\n' +
       'This is only what they told the website. Check Venmo, then put a yes in ' +
       'the confirmed column.');
   }
@@ -403,7 +412,7 @@ Open the `/exec` URL in a browser with a real guest's name on the end:
 
 You should see JSON, starting with a version number:
 
-    {"version":4,"parties":[...]}
+    {"version":5,"parties":[...]}
 
 **If `version` is missing or lower than the number at the top of the
 script, the deployment is running old code.** Nothing else in this
