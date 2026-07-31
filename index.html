@@ -355,147 +355,132 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
    REGISTRY
    ============================================================ */
 
-.reg-count {
-  font-family: var(--f-caps);
-  font-size: .68rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 0 0 1rem;
+.reg-card {
+  border: 1px solid rgba(168,135,90,.45);
+  padding: 1.4rem 1.2rem;
+  text-align: left;
+  margin-top: 1.3rem;
 }
-
-.reg-filter { display: inline-flex; border: 1px solid rgba(168,135,90,.5); border-radius: 2px; overflow: hidden; margin-bottom: 1.4rem; }
-.reg-filter button {
-  font-family: var(--f-caps);
-  font-size: .62rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  padding: .45rem .9rem;
-  border: 0;
-  background: var(--lace);
-  color: var(--ink-soft);
-  cursor: pointer;
-}
-.reg-filter button + button { border-left: 1px solid rgba(168,135,90,.45); }
-.reg-filter button[aria-pressed="true"] { background: var(--oxblood); color: var(--lace); }
-
-.items { display: grid; gap: 0; text-align: left; }
-
-.item {
-  display: grid;
-  grid-template-columns: 68px 1fr;
-  gap: .95rem;
-  align-items: center;
-  padding: .95rem 0;
-  border-top: 1px solid rgba(168,135,90,.35);
-}
-.item:first-child { border-top: 0; }
-
-/* Placeholder tile until real product photos are committed. */
-.item-thumb {
-  width: 68px;
-  height: 68px;
-  display: grid;
-  place-items: center;
-  background: var(--lace);
-  border: 1px solid rgba(168,135,90,.4);
+.reg-card:first-of-type { margin-top: 0; }
+.reg-card h3 {
   font-family: var(--f-display);
-  font-size: 1.5rem;
-  color: var(--brass);
-  overflow: hidden;
+  font-weight: 400;
+  font-size: 1.25rem;
+  margin: .25rem 0 .7rem;
+  color: var(--ink);
 }
-.item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.reg-card > p { margin: 0 0 .9rem; font-size: .92rem; color: var(--ink-soft); }
+.reg-card .btn { display: block; width: 100%; text-align: center; }
 
-.item-name { font-family: var(--f-display); font-size: 1.04rem; color: var(--ink); line-height: 1.3; }
-.item-price {
-  font-family: var(--f-caps);
-  font-size: .74rem;
-  letter-spacing: .1em;
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-  margin-top: .1rem;
+/* The "never used a registry before?" explainer. */
+.how {
+  background: rgba(168,135,90,.13);
+  border-left: 2px solid var(--brass);
+  padding: .85rem 1rem;
+  font-size: .86rem;
+  color: var(--ink);
+  margin: 0 0 1.1rem;
 }
-.item-act { margin-top: .5rem; }
-.item-act button {
-  font-family: var(--f-caps);
-  font-size: .62rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  background: #0000;
-  border: 1px solid var(--oxblood);
-  color: var(--oxblood);
-  padding: .4rem .8rem;
-  cursor: pointer;
-  border-radius: 2px;
-}
-.item-act button:hover { background: var(--oxblood); color: var(--lace); }
-
-/* A claimed item stays visible — seeing what's taken is useful — but
-   reads as unavailable at a glance. */
-.item.claimed .item-thumb,
-.item.claimed .item-name,
-.item.claimed .item-price { opacity: .42; }
-.item-taken {
-  display: inline-block;
-  margin-top: .5rem;
+.how strong {
+  display: block;
   font-family: var(--f-caps);
   font-size: .6rem;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--brass);
-  border: 1px solid rgba(168,135,90,.6);
-  padding: .3rem .7rem;
-  border-radius: 2px;
+  margin-bottom: .35rem;
 }
 
-/* ---- Cash funds ---- */
-
-.funds { display: grid; gap: 1.1rem; text-align: left; margin-top: .4rem; }
-.fund {
-  border: 1px solid rgba(168,135,90,.45);
-  padding: 1.1rem 1.1rem 1.2rem;
-}
-.fund h3 {
-  font-family: var(--f-display);
-  font-weight: 400;
-  font-size: 1.15rem;
+.soon {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: .86rem;
+  color: var(--ink-soft);
+  border: 1px dashed rgba(168,135,90,.6);
+  padding: .8rem .9rem;
+  text-align: center;
   margin: 0;
-  color: var(--ink);
 }
-.fund p { margin: .35rem 0 0; font-size: .88rem; color: var(--ink-soft); }
 
-.progress {
-  height: 5px;
-  background: rgba(168,135,90,.22);
-  margin: .9rem 0 .5rem;
-  overflow: hidden;
+/* ---- Amount picker ---- */
+
+.gift-display {
+  font-family: var(--f-display);
+  font-size: clamp(2.2rem, 11vw, 2.9rem);
+  color: var(--ink);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin: .2rem 0 0;
 }
-.progress b { display: block; height: 100%; background: var(--brass); }
-.progress-note {
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: rgba(168,135,90,.35);
+  margin: 1.1rem 0 .35rem;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--oxblood);
+  border: 2px solid var(--lace);
+  box-shadow: 0 1px 5px rgba(24,6,10,.4);
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--oxblood);
+  border: 2px solid var(--lace);
+  box-shadow: 0 1px 5px rgba(24,6,10,.4);
+  cursor: pointer;
+}
+.slider:focus-visible { outline: 2px solid var(--brass); outline-offset: 7px; }
+
+.slider-ends {
+  display: flex;
+  justify-content: space-between;
   font-family: var(--f-caps);
-  font-size: .62rem;
+  font-size: .58rem;
   letter-spacing: .12em;
-  text-transform: uppercase;
   color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
+  margin-bottom: 1.1rem;
 }
 
-/* ---- Amount chips inside the gift dialog ---- */
-
-.amounts { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin: .3rem 0 .9rem; }
+/* Four equal columns, so the chips stay on one row at any phone width
+   instead of orphaning the last one. */
+.amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin: 0 0 1.1rem; }
 .amounts button {
   font-family: var(--f-caps);
   font-size: .72rem;
-  letter-spacing: .1em;
+  letter-spacing: .04em;
   background: var(--lace);
   border: 1px solid rgba(168,135,90,.5);
   color: var(--ink);
-  padding: .5rem .85rem;
+  padding: .5rem .2rem;
   cursor: pointer;
   border-radius: 2px;
   font-variant-numeric: tabular-nums;
 }
 .amounts button[aria-pressed="true"] { background: var(--oxblood); color: var(--lace); border-color: var(--oxblood); }
+
+.gift-thanks {
+  background: rgba(168,135,90,.13);
+  border-left: 2px solid var(--brass);
+  padding: .9rem 1rem;
+  font-size: .9rem;
+  color: var(--ink);
+  margin: 1rem 0 0;
+}
 
 /* ============================================================
    SCHEDULE
@@ -955,40 +940,56 @@ html { scroll-behavior: smooth; }
         <h2 class="sec-title">Registry</h2>
         <div class="rule"><i></i></div>
 
-        <p class="lede" style="margin:0 0 1.4rem;">Your being there is the gift. If you'd like to give something as well, here's what would help us most.</p>
+        <p class="lede" style="margin:0 0 1.5rem;">Your being there is the gift. If you'd like to give something as well, there are two ways.</p>
 
-        <p class="reg-count" id="reg-count"></p>
+        <div class="reg-card">
+          <p class="detail-h">Something for the house</p>
+          <h3>Our Amazon registry</h3>
 
-        <div class="reg-filter" role="group" aria-label="Filter the registry">
-          <button type="button" data-filter="available" aria-pressed="true">Still available</button>
-          <button type="button" data-filter="all" aria-pressed="false">Show all</button>
+          <div class="how">
+            <strong>If you haven't used one before</strong>
+            A registry is just a list of things we'd find useful, so you don't have to guess. Open it, pick anything on the list, and buy it the way you'd buy anything else on Amazon. It ships straight to us &mdash; you won't need our address &mdash; and once it's bought it comes off the list, so nobody ends up giving us two of the same thing.
+          </div>
+
+          <p class="soon" id="amazon-soon">We're still putting this together &mdash; it'll be here well before the invitations go out.</p>
         </div>
 
-        <div class="items" id="items"></div>
+        <div class="reg-card">
+          <p class="detail-h">A cash gift</p>
+          <h3>Venmo</h3>
+          <p>Toward the honeymoon and the day itself. Any amount is generous, and no amount is expected.</p>
 
-        <div class="demo-note">
-          <p><strong>Still being built:</strong> claiming an item works here, but nothing is saved yet &mdash; it resets when you reload. The photos are placeholders too.</p>
+          <div id="gift-live">
+            <div class="gift-display" id="gift-display">$50</div>
+
+            <input class="slider" id="gift-slider" type="range" min="5" max="500" step="5" value="50"
+                   aria-label="Gift amount in dollars">
+            <div class="slider-ends"><span>$5</span><span>$500</span></div>
+
+            <div class="amounts" id="gift-chips" role="group" aria-label="Common amounts"></div>
+
+            <div class="form-row" style="margin-bottom:.8rem;">
+              <label for="gift-amount">Or type an amount</label>
+              <input class="input" id="gift-amount" type="number" min="1" max="10000" step="1"
+                     inputmode="numeric" value="50">
+            </div>
+
+            <div class="form-row" style="margin-bottom:1rem;">
+              <label for="gift-name">Your name, so we can match it up</label>
+              <input class="input" id="gift-name" autocomplete="name" placeholder="First and last name">
+            </div>
+
+            <a class="btn" id="gift-go" href="https://venmo.com/u/Logan-Crane-23"
+               target="_blank" rel="noopener">Continue to Venmo</a>
+
+            <p class="sub" style="margin-top:.8rem;">Venmo will open with the amount filled in. If it doesn't carry across, just type it in there.</p>
+          </div>
+
+          <div class="gift-thanks" id="gift-thanks" hidden></div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ========================= CASH FUNDS ========================= -->
-<section class="section wrap reveal" id="funds">
-  <div class="card">
-    <div class="panel">
-      <div class="field">
-        <p class="eyebrow">If you'd rather give cash</p>
-        <h2 class="sec-title">Honeymoon &amp; the Day Itself</h2>
-        <div class="rule"><i></i></div>
-
-        <div class="funds" id="funds-list"></div>
-
-        <p class="sub" style="margin-top:1.2rem;">Any amount is generous, and no amount is expected.</p>
 
         <div class="demo-note">
-          <p><strong>Still being built:</strong> the Venmo and PayPal handles are placeholders, and the totals reset on reload.</p>
+          <p><strong>Still being built:</strong> the Amazon registry isn't up yet, and gifts aren't logged anywhere &mdash; the Venmo hand-off is live though.</p>
         </div>
       </div>
     </div>
@@ -1060,66 +1061,6 @@ html { scroll-behavior: smooth; }
   </div>
 </dialog>
 
-<dialog class="modal" id="claim-dialog" aria-labelledby="claim-title">
-  <div class="modal-card">
-    <p class="eyebrow">Registry</p>
-    <h3 id="claim-title">Item</h3>
-    <p class="maps-addr" id="claim-price"></p>
-
-    <form id="claim-form" novalidate style="margin-top:1.2rem;">
-      <div class="form-row" style="margin-bottom:.8rem;">
-        <label for="claim-name">Your name</label>
-        <input class="input" id="claim-name" autocomplete="name" placeholder="So we know who to thank">
-      </div>
-      <div class="form-row">
-        <label for="claim-email">Your email</label>
-        <input class="input" id="claim-email" type="email" autocomplete="email" placeholder="you@example.com">
-      </div>
-
-      <!-- Bots fill every field they find; people never see this one. -->
-      <div style="position:absolute;left:-9999px;" aria-hidden="true">
-        <label for="claim-website">Website</label>
-        <input id="claim-website" tabindex="-1" autocomplete="off">
-      </div>
-
-      <p class="msg" id="claim-msg" role="status"></p>
-
-      <div class="modal-choices">
-        <button class="btn" type="submit">Mark as claimed</button>
-        <a class="btn ghost" id="claim-link" href="#" target="_blank" rel="noopener">Where to buy it</a>
-      </div>
-    </form>
-
-    <button class="modal-cancel" type="button" id="claim-cancel">Never mind</button>
-  </div>
-</dialog>
-
-<dialog class="modal" id="fund-dialog" aria-labelledby="fund-title">
-  <div class="modal-card">
-    <p class="eyebrow">A cash gift</p>
-    <h3 id="fund-title">Fund</h3>
-    <p class="maps-addr" id="fund-blurb"></p>
-
-    <div class="amounts" id="fund-amounts" role="group" aria-label="Choose an amount"></div>
-
-    <div class="form-row" style="margin-bottom:1rem;">
-      <label for="fund-custom">Or another amount</label>
-      <input class="input" id="fund-custom" type="number" min="1" step="1" inputmode="numeric" placeholder="$">
-    </div>
-
-    <div class="modal-choices">
-      <a class="btn" id="fund-venmo" href="#" target="_blank" rel="noopener">Send with Venmo</a>
-      <a class="btn" id="fund-paypal" href="#" target="_blank" rel="noopener">Send with PayPal</a>
-    </div>
-
-    <p class="sub" style="text-align:center;margin:0 0 .8rem;">Once you've sent it, let us know so we can thank you properly.</p>
-    <button class="btn ghost" type="button" id="fund-sent" style="width:100%;">I've sent it</button>
-
-    <p class="msg" id="fund-msg" role="status" style="text-align:center;"></p>
-    <button class="modal-cancel" type="button" id="fund-cancel">Never mind</button>
-  </div>
-</dialog>
-
 <script>
 (function () {
   "use strict";
@@ -1162,263 +1103,81 @@ html { scroll-behavior: smooth; }
   });
 
   /* ================================================================
-     REGISTRY
+     VENMO GIFT
 
-     ITEMS and FUNDS are sample data. In the real thing the Items tab of
-     the registry sheet is published as CSV and fetched here, and
-     claimItem() posts to the Apps Script, which locks the sheet, logs
-     who claimed what on a private tab, and flips the status. Claimer
-     names never go in the published sheet.
+     Venmo has no public API for personal accounts, so the page cannot
+     confirm that money actually arrived. What it can do is capture the
+     intent — amount and name — and hand off with both prefilled. The
+     match against the real Venmo receipts is a manual step by design.
+
+     Prefill parameters are best-effort: Venmo has changed how it honours
+     them, and behaviour differs across iOS, Android and desktop. If they
+     are dropped the guest still lands on the right profile, having just
+     seen the amount on screen, so the worst case is typing it again.
      ================================================================ */
 
-  var VENMO  = "LoganAndMaryLou";        /* placeholder handles */
-  var PAYPAL = "LoganAndMaryLou";
+  var VENMO_USER = "Logan-Crane-23";
+  var GIFT_NOTE  = "Logan & Mary Lou's wedding";
 
-  var ITEMS = [
-    { id: "mixer",   name: "Stand mixer",                        price: 449, url: "#", claimed: false },
-    { id: "dutch",   name: "Dutch oven, 5½ quart",               price: 400, url: "#", claimed: true  },
-    { id: "knives",  name: "Chef's knife set",                   price: 180, url: "#", claimed: false },
-    { id: "skillet", name: "Cast iron skillet, 12 inch",         price: 45,  url: "#", claimed: false },
-    { id: "plates",  name: "Stoneware dinnerware, service for 8", price: 260, url: "#", claimed: false },
-    { id: "duvet",   name: "Linen duvet cover, queen",           price: 220, url: "#", claimed: true  },
-    { id: "towels",  name: "Bath towel set, six piece",          price: 90,  url: "#", claimed: false },
-    { id: "vacuum",  name: "Cordless vacuum",                    price: 350, url: "#", claimed: false }
-  ];
+  var giftSlider  = document.getElementById("gift-slider");
+  var giftField   = document.getElementById("gift-amount");
+  var giftDisplay = document.getElementById("gift-display");
+  var giftGo      = document.getElementById("gift-go");
+  var giftNameEl  = document.getElementById("gift-name");
+  var giftChips   = document.getElementById("gift-chips");
 
-  var FUNDS = [
-    {
-      id: "honeymoon",
-      name: "The honeymoon",
-      blurb: "A week somewhere warm, with nothing on the schedule.",
-      goal: 4000, raised: 1250, gifts: 9
-    },
-    {
-      id: "wedding",
-      name: "Toward the day itself",
-      blurb: "Flowers, the photographer, and everything in between.",
-      goal: 3000, raised: 800, gifts: 6
-    }
-  ];
+  var giftAmount = 50;
 
-  var money = function (n) { return "$" + Number(n).toLocaleString("en-US"); };
+  function dollars(n) { return "$" + Number(n).toLocaleString("en-US"); }
 
-  var itemsHost = document.getElementById("items");
-  var regCount = document.getElementById("reg-count");
-  var filter = "available";
+  /* `source` is whichever control the guest just touched — writing back
+     to it mid-drag fights the browser, so it is left alone. */
+  function setGift(n, source) {
+    n = Math.round(Number(n) || 0);
+    if (!(n > 0)) n = 1;
+    if (n > 10000) n = 10000;
+    giftAmount = n;
 
-  function renderItems() {
-    itemsHost.innerHTML = "";
-    var shown = ITEMS.filter(function (it) { return filter === "all" || !it.claimed; });
-    var left = ITEMS.filter(function (it) { return !it.claimed; }).length;
+    giftDisplay.textContent = dollars(n);
+    if (source !== "slider") giftSlider.value = Math.max(5, Math.min(500, n));
+    if (source !== "field") giftField.value = n;
 
-    regCount.textContent = left + " of " + ITEMS.length + " still available";
-
-    if (!shown.length) {
-      var none = document.createElement("p");
-      none.className = "lede";
-      none.textContent = "Every item has been spoken for — thank you. A cash gift below is just as welcome.";
-      itemsHost.appendChild(none);
-      return;
-    }
-
-    shown.forEach(function (it) {
-      var row = document.createElement("div");
-      row.className = "item" + (it.claimed ? " claimed" : "");
-
-      var thumb = document.createElement("div");
-      thumb.className = "item-thumb";
-      thumb.setAttribute("aria-hidden", "true");
-      thumb.textContent = it.name.charAt(0);
-      row.appendChild(thumb);
-
-      var body = document.createElement("div");
-
-      var nm = document.createElement("div");
-      nm.className = "item-name";
-      nm.textContent = it.name;
-      body.appendChild(nm);
-
-      var pr = document.createElement("div");
-      pr.className = "item-price";
-      pr.textContent = money(it.price);
-      body.appendChild(pr);
-
-      if (it.claimed) {
-        var taken = document.createElement("span");
-        taken.className = "item-taken";
-        taken.textContent = "Claimed";
-        body.appendChild(taken);
-      } else {
-        var act = document.createElement("div");
-        act.className = "item-act";
-        var b = document.createElement("button");
-        b.type = "button";
-        b.textContent = "I'll gift this";
-        b.addEventListener("click", function () { openClaim(it); });
-        act.appendChild(b);
-        body.appendChild(act);
-      }
-
-      row.appendChild(body);
-      itemsHost.appendChild(row);
-    });
-  }
-
-  Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function (b) {
-    b.addEventListener("click", function () {
-      filter = b.getAttribute("data-filter");
-      Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function (o) {
-        o.setAttribute("aria-pressed", String(o === b));
-      });
-      renderItems();
-    });
-  });
-
-  /* ---- Claim dialog ---- */
-
-  var claimDlg = document.getElementById("claim-dialog");
-  var claimMsg = document.getElementById("claim-msg");
-  var claiming = null;
-
-  function openClaim(item) {
-    claiming = item;
-    document.getElementById("claim-title").textContent = item.name;
-    document.getElementById("claim-price").textContent = money(item.price);
-    document.getElementById("claim-link").href = item.url;
-    claimMsg.textContent = "";
-    document.getElementById("claim-form").reset();
-    claimDlg.showModal();
-  }
-
-  document.getElementById("claim-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (document.getElementById("claim-website").value) return;   /* bot */
-
-    var name = document.getElementById("claim-name").value.trim();
-    var email = document.getElementById("claim-email").value.trim();
-
-    if (!name) { claimMsg.textContent = "Please add your name so we know who to thank."; return; }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-      claimMsg.textContent = "That email doesn't look right — we'll send your confirmation there.";
-      return;
-    }
-
-    claiming.claimed = true;
-    claimDlg.close();
-    renderItems();
-  });
-
-  document.getElementById("claim-cancel").addEventListener("click", function () { claimDlg.close(); });
-
-  /* ---- Funds ---- */
-
-  var fundsHost = document.getElementById("funds-list");
-
-  function renderFunds() {
-    fundsHost.innerHTML = "";
-    FUNDS.forEach(function (f) {
-      var box = document.createElement("div");
-      box.className = "fund";
-
-      var h = document.createElement("h3");
-      h.textContent = f.name;
-      box.appendChild(h);
-
-      var p = document.createElement("p");
-      p.textContent = f.blurb;
-      box.appendChild(p);
-
-      var pct = Math.min(100, Math.round((f.raised / f.goal) * 100));
-      var bar = document.createElement("div");
-      bar.className = "progress";
-      bar.setAttribute("role", "progressbar");
-      bar.setAttribute("aria-valuenow", String(pct));
-      bar.setAttribute("aria-valuemin", "0");
-      bar.setAttribute("aria-valuemax", "100");
-      bar.setAttribute("aria-label", f.name + " progress");
-      var fill = document.createElement("b");
-      fill.style.width = pct + "%";
-      bar.appendChild(fill);
-      box.appendChild(bar);
-
-      var note = document.createElement("div");
-      note.className = "progress-note";
-      note.textContent = money(f.raised) + " from " + f.gifts + " gifts";
-      box.appendChild(note);
-
-      var btn = document.createElement("button");
-      btn.className = "btn";
-      btn.type = "button";
-      btn.style.marginTop = ".9rem";
-      btn.textContent = "Give to this";
-      btn.addEventListener("click", function () { openFund(f); });
-      box.appendChild(btn);
-
-      fundsHost.appendChild(box);
-    });
-  }
-
-  var fundDlg = document.getElementById("fund-dialog");
-  var fundMsg = document.getElementById("fund-msg");
-  var fundCustom = document.getElementById("fund-custom");
-  var giving = null;
-  var amount = 50;
-
-  function setAmount(n) {
-    amount = n;
-    Array.prototype.forEach.call(document.querySelectorAll("#fund-amounts button"), function (b) {
+    Array.prototype.forEach.call(giftChips.children, function (b) {
       b.setAttribute("aria-pressed", String(Number(b.dataset.amt) === n));
     });
-    var note = giving ? giving.name : "";
-    document.getElementById("fund-venmo").href =
-      "https://venmo.com/" + encodeURIComponent(VENMO) +
-      "?txn=pay&amount=" + n + "&note=" + encodeURIComponent(note);
-    document.getElementById("fund-paypal").href =
-      "https://paypal.me/" + encodeURIComponent(PAYPAL) + "/" + n;
+
+    giftGo.href = "https://venmo.com/u/" + VENMO_USER +
+      "?txn=pay&amount=" + n + "&note=" + encodeURIComponent(GIFT_NOTE);
   }
 
-  function openFund(fund) {
-    giving = fund;
-    document.getElementById("fund-title").textContent = fund.name;
-    document.getElementById("fund-blurb").textContent = fund.blurb;
-    fundMsg.textContent = "";
-    fundCustom.value = "";
-    document.getElementById("fund-cancel").textContent = "Never mind";
-
-    var box = document.getElementById("fund-amounts");
-    box.innerHTML = "";
-    [25, 50, 100, 250].forEach(function (n) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.dataset.amt = String(n);
-      b.textContent = money(n);
-      b.addEventListener("click", function () { fundCustom.value = ""; setAmount(n); });
-      box.appendChild(b);
-    });
-
-    setAmount(50);
-    fundDlg.showModal();
-  }
-
-  fundCustom.addEventListener("input", function () {
-    var n = parseInt(fundCustom.value, 10);
-    if (n > 0) setAmount(n);
+  [25, 50, 100, 250].forEach(function (n) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.dataset.amt = String(n);
+    b.textContent = dollars(n);
+    b.addEventListener("click", function () { setGift(n, "chip"); });
+    giftChips.appendChild(b);
   });
 
-  document.getElementById("fund-sent").addEventListener("click", function () {
-    giving.raised += amount;
-    giving.gifts += 1;
-    fundMsg.textContent = "Thank you — we'll look out for it.";
-    /* The dialog has done its job now, so the way out stops being a
-       "never mind" and becomes a plain close. */
-    document.getElementById("fund-cancel").textContent = "Close";
-    renderFunds();
+  giftSlider.addEventListener("input", function () { setGift(giftSlider.value, "slider"); });
+  giftField.addEventListener("input", function () {
+    if (giftField.value !== "") setGift(giftField.value, "field");
+  });
+  /* An empty or nonsense box on blur snaps back to the live amount
+     rather than leaving the guest looking at a blank field. */
+  giftField.addEventListener("blur", function () { setGift(giftAmount, "none"); });
+
+  giftGo.addEventListener("click", function () {
+    /* Logging the pledge happens here. Once the Apps Script is wired up
+       this posts amount, name and timestamp to the Gifts tab. */
+    var who = giftNameEl.value.trim();
+    var thanks = document.getElementById("gift-thanks");
+    thanks.textContent = "Thank you" + (who ? ", " + who : "") +
+      " — we've noted " + dollars(giftAmount) + " and we'll watch for it on Venmo.";
+    thanks.hidden = false;
   });
 
-  document.getElementById("fund-cancel").addEventListener("click", function () { fundDlg.close(); });
-
-  renderItems();
-  renderFunds();
+  setGift(50, "init");
 
   /* ---------- Countdown ---------- */
   var target = new Date("2027-06-19T16:00:00").getTime();

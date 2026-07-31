@@ -1,73 +1,77 @@
-# Registry — how the backend will work
+# Registry — how it works
 
-The site is static (GitHub Pages), so it can't hold state or take money by
-itself. Everything below runs on a Google Sheet plus one Apps Script.
-No server, no hosting bill.
+Two ways to give: an Amazon Wedding Registry for physical gifts, and
+Venmo for cash. Both live on the site's Registry section.
 
-## The sheet
+## Amazon
 
-One spreadsheet, three tabs.
+Amazon owns the checkout, so it marks items purchased by itself, hides
+the shipping address from guests, and offers group gifting on expensive
+items. Nothing to build — the site links out.
 
-**`Items`** — published to the web as CSV (File → Share → Publish to web).
-The page fetches this URL directly, so reads are fast and cached by Google
-and don't burn Apps Script quota.
+The registry URL goes in `index.html`, replacing the `.soon` placeholder
+inside the first `.reg-card` with a link:
 
-| id | name | price | image | url | status |
-|----|------|-------|-------|-----|--------|
-| mixer | Stand mixer | 449 | img/mixer.jpg | https://… | available |
+```html
+<a class="btn" href="https://www.amazon.com/wedding/registry/YOUR-ID"
+   target="_blank" rel="noopener">Open our registry</a>
+```
 
-`status` is one of `available`, `claimed`, `received`. Only you set
-`received`, once the thing actually turns up.
+## Venmo
 
-**`Claims`** — private, never published.
+Venmo has **no public API for personal accounts** — the API is
+business-only, through PayPal/Braintree. A website cannot ask whether a
+payment arrived. So the flow is:
 
-| timestamp | item id | guest name | email | note |
-|-----------|---------|------------|-------|------|
+1. Guest picks an amount (slider, chips, or typed).
+2. The page builds a deep link with the amount and a note prefilled.
+3. Guest sends the money in the Venmo app.
+4. Logan checks Venmo and matches it against the log.
 
-This tab is also the thank-you-note list.
+Venmo already shows the sender's name, so the name field on the page is
+a convenience for matching, not the only signal.
 
-**`Gifts`** — private. Cash pledges, reconciled by hand against Venmo.
+### The link format
 
-| timestamp | fund | amount | guest name | email | confirmed |
-|-----------|------|--------|------------|-------|-----------|
+```
+https://venmo.com/u/Logan-Crane-23?txn=pay&amount=100&note=...
+```
 
-Keeping claimer names off the published tab is the point of the split. One
-sheet published whole would let anyone read who gave what.
+Prefill parameters are **best-effort**. Venmo has changed how it honours
+them and behaviour differs across iOS, Android and desktop web. If they
+are dropped the guest still lands on the right profile having just seen
+the amount, so the worst case is typing it again. Worth testing on a real
+phone and adjusting if needed.
 
-## The Apps Script
+### Logging (not built yet)
 
-A single `doPost` bound to the sheet, deployed as a web app with access set
-to "Anyone".
+`giftGo`'s click handler in `index.html` is where a pledge gets recorded.
+It currently only updates the thank-you line. To wire it up, POST to an
+Apps Script `doPost` that appends to a private `Gifts` tab:
 
-1. Reject the request if the honeypot field is filled.
-2. `LockService.getScriptLock()` — two guests can tap the same item at the
-   same moment, and without the lock both get told they claimed it.
-3. Re-read the item's current status. If it isn't `available` any more,
-   return a "someone just took this" response so the page can say so
-   rather than silently overwriting.
-4. Append to `Claims`, flip `Items.status` to `claimed`.
-5. `MailApp.sendEmail` to Logan and Mary Lou, and a confirmation to the guest.
+| timestamp | amount | guest name | confirmed |
+|-----------|--------|------------|-----------|
 
-The endpoint URL is public — it has to be. That's fine: the worst case is
-junk rows, everything is logged, and anything can be undone by editing the
-sheet.
+`confirmed` is set by hand after checking Venmo. Treat the log as
+*intent*: a guest can tap Continue and never send anything, so the log
+alone is not money.
 
-## Cash gifts
+Note the request has to be sent in a way that survives the page
+navigating away to Venmo — `navigator.sendBeacon` rather than a plain
+`fetch`, or fire it slightly before the hand-off.
 
-Guest picks an amount, taps through to Venmo or PayPal with the amount and
-fund name prefilled, then taps "I've sent it" which logs a pledge to
-`Gifts`. You reconcile against your actual Venmo history and set
-`confirmed`.
+### Fees
 
-This is deliberately manual. Stripe would make the progress bars update on
-their own, but it costs about 2.9% + 30¢ per gift — roughly $175 on $5,000
-— to save reconciling perhaps thirty transactions.
+Venmo takes nothing on personal payments between friends. It does take a
+cut if a sender marks the payment as goods and services, which also
+raises 1099-K paperwork. Guests won't do that by default. Not worth
+mentioning on the site unless it comes up.
 
-## Still to decide
+## Deliberately not built
 
-- Where physical gifts ship. A homemade registry can't hide your address
-  the way Zola or MyRegistry can.
-- Real Venmo and PayPal handles (placeholders in `index.html`).
-- Whether the funds show a goal and progress bar at all, or just a total.
-- Product photos: download and commit them resized. Don't hotlink from
-  retailers — the links rot and the images aren't ours to serve.
+- **A running total or progress bar.** The numbers would be unverified
+  pledges rather than money received, and a public tally reads more like
+  a fundraiser than a wedding.
+- **Stripe.** It would make totals update automatically, but at roughly
+  2.9% + 30¢ per gift — about $175 on $5,000 — to save reconciling maybe
+  thirty transactions by hand.
