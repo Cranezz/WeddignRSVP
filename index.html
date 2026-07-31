@@ -1213,7 +1213,7 @@ html { scroll-behavior: smooth; }
      page runs on the sample data below so the flow can still be shown.
      ================================================================ */
 
-  var RSVP_API = "";
+  var RSVP_API = "https://script.google.com/macros/s/AKfycbzoMFePbH93wtj2azKY7QwzyMw9vq27jIZ09EyDTkdqtRQeU5wUv_dqJggzPpN1AjEN_A/exec";
 
   var DEMO_PARTIES = [
     { id: "d1", household: "The Whitfield Family",
@@ -1237,21 +1237,84 @@ html { scroll-behavior: smooth; }
     return String(s || "").toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim();
   }
 
-  /* Every word the guest typed has to start one of the words in the
-     party's names, so "reyes", "dana" and "rey" all find the same
-     household but "eyes" does not. Mirrors the Apps Script exactly. */
-  function demoSearch(query) {
+  /* ---- Name matching ----
+     Mirrors the Apps Script exactly. Keep the two in step: if this
+     changes, the script has to change and be redeployed too. */
+
+  /* Levenshtein distance, abandoned as soon as it exceeds `max` — there
+     is no value in computing an exact figure we are going to reject. */
+  function editDistance(a, b, max) {
+    var la = a.length, lb = b.length;
+    if (Math.abs(la - lb) > max) return max + 1;
+
+    var prev = new Array(lb + 1), cur = new Array(lb + 1), i, j;
+    for (j = 0; j <= lb; j++) prev[j] = j;
+
+    for (i = 1; i <= la; i++) {
+      cur[0] = i;
+      var best = i;
+      for (j = 1; j <= lb; j++) {
+        var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+        if (cur[j] < best) best = cur[j];
+      }
+      if (best > max) return max + 1;
+      for (j = 0; j <= lb; j++) prev[j] = cur[j];
+    }
+    return prev[lb];
+  }
+
+  /* How wrong a word may be. Short ones get no latitude at all: at three
+     letters a single typo turns one real name into a different one. */
+  function slack(token) {
+    if (token.length <= 3) return 0;
+    if (token.length <= 6) return 1;
+    return 2;
+  }
+
+  /* 0 for a clean prefix match, otherwise the edit distance, or null if
+     nothing in this household comes close enough. */
+  function tokenScore(token, words) {
+    var allow = slack(token), best = null, i, d;
+    for (i = 0; i < words.length; i++) {
+      if (words[i].lastIndexOf(token, 0) === 0) return 0;
+      if (allow) {
+        d = editDistance(token, words[i], allow);
+        if (d <= allow && (best === null || d < best)) best = d;
+      }
+    }
+    return best;
+  }
+
+  /* Every word typed has to land somewhere in the household, so "reyes",
+     "dana", "rey" and "rayes" all find the same row but "eyes" does not.
+     The total is how far off the whole query was — lower sorts first. */
+  function scoreParty(tokens, party) {
+    var words = normalize(
+      (party.adults || []).join(" ") + " " +
+      (party.children || []).join(" ") + " " + party.household
+    ).split(" ").filter(Boolean);
+
+    var total = 0;
+    for (var i = 0; i < tokens.length; i++) {
+      var s = tokenScore(tokens[i], words);
+      if (s === null) return null;
+      total += s;
+    }
+    return total;
+  }
+
+  function rankParties(query, parties) {
     var tokens = normalize(query).split(" ").filter(Boolean);
     if (!tokens.length) return [];
-    return DEMO_PARTIES.filter(function (p) {
-      var words = normalize(
-        p.adults.join(" ") + " " + p.children.join(" ") + " " + p.household
-      ).split(" ");
-      return tokens.every(function (t) {
-        return words.some(function (w) { return w.lastIndexOf(t, 0) === 0; });
-      });
-    });
+    return parties
+      .map(function (p) { return { party: p, score: scoreParty(tokens, p) }; })
+      .filter(function (r) { return r.score !== null; })
+      .sort(function (a, b) { return a.score - b.score; })
+      .map(function (r) { return r.party; });
   }
+
+  function demoSearch(query) { return rankParties(query, DEMO_PARTIES); }
 
   function lookupParty(query) {
     if (!RSVP_API) return Promise.resolve(demoSearch(query));

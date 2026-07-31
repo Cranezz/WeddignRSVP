@@ -28,8 +28,14 @@ One spreadsheet, two tabs.
   the guest's name.
 
 Searching matches on the start of any word in that row, so "reyes",
-"dana" and "rey" all find row 2. If two households share a surname the
-site asks which one rather than guessing.
+"dana" and "rey" all find row 2 — and it tolerates typos, so "Rayes"
+and "Whitfeild" work too. If two households match, the site asks which
+one rather than guessing.
+
+How much misspelling is allowed scales with word length: three letters
+or fewer must be exact (at that size one typo turns a real name into a
+different real name), four to six letters allow one error, seven or more
+allow two. Results come back sorted by how close the match was.
 
 ### Tab `Replies` — written by the script
 
@@ -82,17 +88,72 @@ function readGuests() {
     });
 }
 
-// Every word typed must start a word in the household's names.
+// ---- Name matching (mirrors the same functions in index.html) ----
+
+// Levenshtein distance, abandoned once it exceeds max.
+function editDistance(a, b, max) {
+  const la = a.length, lb = b.length;
+  if (Math.abs(la - lb) > max) return max + 1;
+
+  let prev = [], cur = [];
+  for (let j = 0; j <= lb; j++) prev[j] = j;
+
+  for (let i = 1; i <= la; i++) {
+    cur[0] = i;
+    let best = i;
+    for (let j = 1; j <= lb; j++) {
+      const cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+      if (cur[j] < best) best = cur[j];
+    }
+    if (best > max) return max + 1;
+    prev = cur.slice();
+  }
+  return prev[lb];
+}
+
+// Short words get no latitude: at three letters one typo turns a real
+// name into a different real name.
+function slack(token) {
+  if (token.length <= 3) return 0;
+  if (token.length <= 6) return 1;
+  return 2;
+}
+
+function tokenScore(token, words) {
+  const allow = slack(token);
+  let best = null;
+  for (const w of words) {
+    if (w.indexOf(token) === 0) return 0;
+    if (allow) {
+      const d = editDistance(token, w, allow);
+      if (d <= allow && (best === null || d < best)) best = d;
+    }
+  }
+  return best;
+}
+
+// Every word typed must land somewhere in the household. The total is
+// how far off the query was overall — lower sorts first.
 function doGet(e) {
   const tokens = norm((e && e.parameter && e.parameter.q) || '').split(' ').filter(Boolean);
   if (!tokens.length) return json({ parties: [] });
 
-  const parties = readGuests().filter(p => {
-    const words = norm([p.adults.join(' '), p.children.join(' '), p.household].join(' ')).split(' ');
-    return tokens.every(t => words.some(w => w.indexOf(t) === 0));
+  const scored = [];
+  readGuests().forEach(p => {
+    const words = norm([p.adults.join(' '), p.children.join(' '), p.household].join(' '))
+      .split(' ').filter(Boolean);
+    let total = 0;
+    for (const t of tokens) {
+      const s = tokenScore(t, words);
+      if (s === null) return;
+      total += s;
+    }
+    scored.push({ party: p, score: total });
   });
 
-  return json({ parties: parties });
+  scored.sort((a, b) => a.score - b.score);
+  return json({ parties: scored.map(s => s.party) });
 }
 
 function doPost(e) {
