@@ -295,28 +295,28 @@ select:focus-visible, textarea:focus-visible, summary:focus-visible {
 }
 
 /* ============================================================
-   MAPS CHOOSER
+   MODAL (maps chooser, registry claim, cash gift)
    ============================================================ */
 
-dialog.maps {
+dialog.modal {
   border: 0;
   padding: 0;
   background: #0000;
   width: min(92vw, 21rem);
   color: var(--ink);
 }
-dialog.maps::backdrop {
+dialog.modal::backdrop {
   background: rgba(24, 6, 10, .62);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
-dialog.maps[open] { animation: maps-in .22s ease both; }
-@keyframes maps-in {
+dialog.modal[open] { animation: modal-in .22s ease both; }
+@keyframes modal-in {
   from { opacity: 0; transform: translateY(10px) scale(.98); }
   to   { opacity: 1; transform: none; }
 }
 
-.maps-card {
+.modal-card {
   background: var(--cream);
   border: 1px solid rgba(168,135,90,.5);
   outline: 1px solid rgba(250,244,233,.6);
@@ -324,7 +324,7 @@ dialog.maps[open] { animation: maps-in .22s ease both; }
   padding: 1.7rem 1.3rem 1.4rem;
   text-align: center;
 }
-.maps-card h3 {
+.modal-card h3 {
   font-family: var(--f-display);
   font-weight: 400;
   font-size: 1.3rem;
@@ -336,9 +336,9 @@ dialog.maps[open] { animation: maps-in .22s ease both; }
   color: var(--ink-soft);
   margin: .5rem 0 0;
 }
-.maps-choices { display: grid; gap: .6rem; margin: 1.3rem 0 1rem; }
-.maps-choices .btn { padding: .85rem 1rem; }
-.maps-cancel {
+.modal-choices { display: grid; gap: .6rem; margin: 1.3rem 0 1rem; }
+.modal-choices .btn { padding: .85rem 1rem; }
+.modal-cancel {
   background: #0000;
   border: 0;
   cursor: pointer;
@@ -349,7 +349,153 @@ dialog.maps[open] { animation: maps-in .22s ease both; }
   color: var(--ink-soft);
   padding: .5rem;
 }
-.maps-cancel:hover { color: var(--ink); }
+.modal-cancel:hover { color: var(--ink); }
+
+/* ============================================================
+   REGISTRY
+   ============================================================ */
+
+.reg-count {
+  font-family: var(--f-caps);
+  font-size: .68rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+}
+
+.reg-filter { display: inline-flex; border: 1px solid rgba(168,135,90,.5); border-radius: 2px; overflow: hidden; margin-bottom: 1.4rem; }
+.reg-filter button {
+  font-family: var(--f-caps);
+  font-size: .62rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  padding: .45rem .9rem;
+  border: 0;
+  background: var(--lace);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.reg-filter button + button { border-left: 1px solid rgba(168,135,90,.45); }
+.reg-filter button[aria-pressed="true"] { background: var(--oxblood); color: var(--lace); }
+
+.items { display: grid; gap: 0; text-align: left; }
+
+.item {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: .95rem;
+  align-items: center;
+  padding: .95rem 0;
+  border-top: 1px solid rgba(168,135,90,.35);
+}
+.item:first-child { border-top: 0; }
+
+/* Placeholder tile until real product photos are committed. */
+.item-thumb {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  background: var(--lace);
+  border: 1px solid rgba(168,135,90,.4);
+  font-family: var(--f-display);
+  font-size: 1.5rem;
+  color: var(--brass);
+  overflow: hidden;
+}
+.item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.item-name { font-family: var(--f-display); font-size: 1.04rem; color: var(--ink); line-height: 1.3; }
+.item-price {
+  font-family: var(--f-caps);
+  font-size: .74rem;
+  letter-spacing: .1em;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  margin-top: .1rem;
+}
+.item-act { margin-top: .5rem; }
+.item-act button {
+  font-family: var(--f-caps);
+  font-size: .62rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  background: #0000;
+  border: 1px solid var(--oxblood);
+  color: var(--oxblood);
+  padding: .4rem .8rem;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.item-act button:hover { background: var(--oxblood); color: var(--lace); }
+
+/* A claimed item stays visible — seeing what's taken is useful — but
+   reads as unavailable at a glance. */
+.item.claimed .item-thumb,
+.item.claimed .item-name,
+.item.claimed .item-price { opacity: .42; }
+.item-taken {
+  display: inline-block;
+  margin-top: .5rem;
+  font-family: var(--f-caps);
+  font-size: .6rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brass);
+  border: 1px solid rgba(168,135,90,.6);
+  padding: .3rem .7rem;
+  border-radius: 2px;
+}
+
+/* ---- Cash funds ---- */
+
+.funds { display: grid; gap: 1.1rem; text-align: left; margin-top: .4rem; }
+.fund {
+  border: 1px solid rgba(168,135,90,.45);
+  padding: 1.1rem 1.1rem 1.2rem;
+}
+.fund h3 {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  margin: 0;
+  color: var(--ink);
+}
+.fund p { margin: .35rem 0 0; font-size: .88rem; color: var(--ink-soft); }
+
+.progress {
+  height: 5px;
+  background: rgba(168,135,90,.22);
+  margin: .9rem 0 .5rem;
+  overflow: hidden;
+}
+.progress b { display: block; height: 100%; background: var(--brass); }
+.progress-note {
+  font-family: var(--f-caps);
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Amount chips inside the gift dialog ---- */
+
+.amounts { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin: .3rem 0 .9rem; }
+.amounts button {
+  font-family: var(--f-caps);
+  font-size: .72rem;
+  letter-spacing: .1em;
+  background: var(--lace);
+  border: 1px solid rgba(168,135,90,.5);
+  color: var(--ink);
+  padding: .5rem .85rem;
+  cursor: pointer;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.amounts button[aria-pressed="true"] { background: var(--oxblood); color: var(--lace); border-color: var(--oxblood); }
 
 /* ============================================================
    SCHEDULE
@@ -598,6 +744,7 @@ html { scroll-behavior: smooth; }
     <li><a href="#where">Where</a></li>
     <li><a href="#wear">What to Wear</a></li>
     <li><a href="#rsvp">RSVP</a></li>
+    <li><a href="#registry">Registry</a></li>
     <li><a href="#faq">Questions</a></li>
   </ul>
 </nav>
@@ -799,8 +946,54 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- A Registry section belongs here once Logan and Mary Lou have chosen
-     one. Add the nav link back at the same time. -->
+<!-- ========================= REGISTRY ========================= -->
+<section class="section wrap reveal" id="registry">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">With gratitude</p>
+        <h2 class="sec-title">Registry</h2>
+        <div class="rule"><i></i></div>
+
+        <p class="lede" style="margin:0 0 1.4rem;">Your being there is the gift. If you'd like to give something as well, here's what would help us most.</p>
+
+        <p class="reg-count" id="reg-count"></p>
+
+        <div class="reg-filter" role="group" aria-label="Filter the registry">
+          <button type="button" data-filter="available" aria-pressed="true">Still available</button>
+          <button type="button" data-filter="all" aria-pressed="false">Show all</button>
+        </div>
+
+        <div class="items" id="items"></div>
+
+        <div class="demo-note">
+          <p><strong>Still being built:</strong> claiming an item works here, but nothing is saved yet &mdash; it resets when you reload. The photos are placeholders too.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================= CASH FUNDS ========================= -->
+<section class="section wrap reveal" id="funds">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">If you'd rather give cash</p>
+        <h2 class="sec-title">Honeymoon &amp; the Day Itself</h2>
+        <div class="rule"><i></i></div>
+
+        <div class="funds" id="funds-list"></div>
+
+        <p class="sub" style="margin-top:1.2rem;">Any amount is generous, and no amount is expected.</p>
+
+        <div class="demo-note">
+          <p><strong>Still being built:</strong> the Venmo and PayPal handles are placeholders, and the totals reset on reload.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ========================= FAQ ========================= -->
 <section class="section wrap reveal" id="faq">
@@ -848,13 +1041,13 @@ html { scroll-behavior: smooth; }
   <p style="opacity:.65;">Logan &amp; Mary Lou &middot; June 19, 2027 &middot; Boise, Idaho</p>
 </footer>
 
-<dialog class="maps" id="maps-dialog" aria-labelledby="maps-title">
-  <div class="maps-card">
+<dialog class="modal" id="maps-dialog" aria-labelledby="maps-title">
+  <div class="modal-card">
     <p class="eyebrow">Directions</p>
     <h3 id="maps-title">Which maps app?</h3>
     <p class="maps-addr">Surprise Valley Eagle Christian Church<br>4601 S Surprise Way, Boise, ID 83716</p>
 
-    <div class="maps-choices">
+    <div class="modal-choices">
       <a class="btn" id="maps-apple"
          href="https://maps.apple.com/?q=Surprise+Valley+Eagle+Christian+Church&amp;address=4601+S+Surprise+Way,+Boise,+ID+83716"
          target="_blank" rel="noopener">Apple Maps</a>
@@ -863,7 +1056,67 @@ html { scroll-behavior: smooth; }
          target="_blank" rel="noopener">Google Maps</a>
     </div>
 
-    <button class="maps-cancel" type="button" id="maps-cancel">Never mind</button>
+    <button class="modal-cancel" type="button" id="maps-cancel">Never mind</button>
+  </div>
+</dialog>
+
+<dialog class="modal" id="claim-dialog" aria-labelledby="claim-title">
+  <div class="modal-card">
+    <p class="eyebrow">Registry</p>
+    <h3 id="claim-title">Item</h3>
+    <p class="maps-addr" id="claim-price"></p>
+
+    <form id="claim-form" novalidate style="margin-top:1.2rem;">
+      <div class="form-row" style="margin-bottom:.8rem;">
+        <label for="claim-name">Your name</label>
+        <input class="input" id="claim-name" autocomplete="name" placeholder="So we know who to thank">
+      </div>
+      <div class="form-row">
+        <label for="claim-email">Your email</label>
+        <input class="input" id="claim-email" type="email" autocomplete="email" placeholder="you@example.com">
+      </div>
+
+      <!-- Bots fill every field they find; people never see this one. -->
+      <div style="position:absolute;left:-9999px;" aria-hidden="true">
+        <label for="claim-website">Website</label>
+        <input id="claim-website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <p class="msg" id="claim-msg" role="status"></p>
+
+      <div class="modal-choices">
+        <button class="btn" type="submit">Mark as claimed</button>
+        <a class="btn ghost" id="claim-link" href="#" target="_blank" rel="noopener">Where to buy it</a>
+      </div>
+    </form>
+
+    <button class="modal-cancel" type="button" id="claim-cancel">Never mind</button>
+  </div>
+</dialog>
+
+<dialog class="modal" id="fund-dialog" aria-labelledby="fund-title">
+  <div class="modal-card">
+    <p class="eyebrow">A cash gift</p>
+    <h3 id="fund-title">Fund</h3>
+    <p class="maps-addr" id="fund-blurb"></p>
+
+    <div class="amounts" id="fund-amounts" role="group" aria-label="Choose an amount"></div>
+
+    <div class="form-row" style="margin-bottom:1rem;">
+      <label for="fund-custom">Or another amount</label>
+      <input class="input" id="fund-custom" type="number" min="1" step="1" inputmode="numeric" placeholder="$">
+    </div>
+
+    <div class="modal-choices">
+      <a class="btn" id="fund-venmo" href="#" target="_blank" rel="noopener">Send with Venmo</a>
+      <a class="btn" id="fund-paypal" href="#" target="_blank" rel="noopener">Send with PayPal</a>
+    </div>
+
+    <p class="sub" style="text-align:center;margin:0 0 .8rem;">Once you've sent it, let us know so we can thank you properly.</p>
+    <button class="btn ghost" type="button" id="fund-sent" style="width:100%;">I've sent it</button>
+
+    <p class="msg" id="fund-msg" role="status" style="text-align:center;"></p>
+    <button class="modal-cancel" type="button" id="fund-cancel">Never mind</button>
   </div>
 </dialog>
 
@@ -890,12 +1143,16 @@ html { scroll-behavior: smooth; }
   });
 
   /* Tapping the dimmed area outside the card closes it. The dialog fills
-     the backdrop's click target, so compare against the card's box. */
-  mapsDlg.addEventListener("click", function (e) {
-    var box = mapsDlg.querySelector(".maps-card").getBoundingClientRect();
-    var outside = e.clientY < box.top || e.clientY > box.bottom ||
-                  e.clientX < box.left || e.clientX > box.right;
-    if (outside) mapsDlg.close();
+     the backdrop's click target, so compare against the card's box.
+     Applies to every modal on the page. */
+  Array.prototype.forEach.call(document.querySelectorAll("dialog.modal"), function (dlg) {
+    dlg.addEventListener("click", function (e) {
+      if (e.target !== dlg) return;      /* a click on something inside */
+      var box = dlg.querySelector(".modal-card").getBoundingClientRect();
+      var outside = e.clientY < box.top || e.clientY > box.bottom ||
+                    e.clientX < box.left || e.clientX > box.right;
+      if (outside) dlg.close();
+    });
   });
 
   /* Picking an app closes the dialog behind them, so coming back to the
@@ -903,6 +1160,265 @@ html { scroll-behavior: smooth; }
   Array.prototype.forEach.call(mapsDlg.querySelectorAll("a"), function (a) {
     a.addEventListener("click", function () { mapsDlg.close(); });
   });
+
+  /* ================================================================
+     REGISTRY
+
+     ITEMS and FUNDS are sample data. In the real thing the Items tab of
+     the registry sheet is published as CSV and fetched here, and
+     claimItem() posts to the Apps Script, which locks the sheet, logs
+     who claimed what on a private tab, and flips the status. Claimer
+     names never go in the published sheet.
+     ================================================================ */
+
+  var VENMO  = "LoganAndMaryLou";        /* placeholder handles */
+  var PAYPAL = "LoganAndMaryLou";
+
+  var ITEMS = [
+    { id: "mixer",   name: "Stand mixer",                        price: 449, url: "#", claimed: false },
+    { id: "dutch",   name: "Dutch oven, 5½ quart",               price: 400, url: "#", claimed: true  },
+    { id: "knives",  name: "Chef's knife set",                   price: 180, url: "#", claimed: false },
+    { id: "skillet", name: "Cast iron skillet, 12 inch",         price: 45,  url: "#", claimed: false },
+    { id: "plates",  name: "Stoneware dinnerware, service for 8", price: 260, url: "#", claimed: false },
+    { id: "duvet",   name: "Linen duvet cover, queen",           price: 220, url: "#", claimed: true  },
+    { id: "towels",  name: "Bath towel set, six piece",          price: 90,  url: "#", claimed: false },
+    { id: "vacuum",  name: "Cordless vacuum",                    price: 350, url: "#", claimed: false }
+  ];
+
+  var FUNDS = [
+    {
+      id: "honeymoon",
+      name: "The honeymoon",
+      blurb: "A week somewhere warm, with nothing on the schedule.",
+      goal: 4000, raised: 1250, gifts: 9
+    },
+    {
+      id: "wedding",
+      name: "Toward the day itself",
+      blurb: "Flowers, the photographer, and everything in between.",
+      goal: 3000, raised: 800, gifts: 6
+    }
+  ];
+
+  var money = function (n) { return "$" + Number(n).toLocaleString("en-US"); };
+
+  var itemsHost = document.getElementById("items");
+  var regCount = document.getElementById("reg-count");
+  var filter = "available";
+
+  function renderItems() {
+    itemsHost.innerHTML = "";
+    var shown = ITEMS.filter(function (it) { return filter === "all" || !it.claimed; });
+    var left = ITEMS.filter(function (it) { return !it.claimed; }).length;
+
+    regCount.textContent = left + " of " + ITEMS.length + " still available";
+
+    if (!shown.length) {
+      var none = document.createElement("p");
+      none.className = "lede";
+      none.textContent = "Every item has been spoken for — thank you. A cash gift below is just as welcome.";
+      itemsHost.appendChild(none);
+      return;
+    }
+
+    shown.forEach(function (it) {
+      var row = document.createElement("div");
+      row.className = "item" + (it.claimed ? " claimed" : "");
+
+      var thumb = document.createElement("div");
+      thumb.className = "item-thumb";
+      thumb.setAttribute("aria-hidden", "true");
+      thumb.textContent = it.name.charAt(0);
+      row.appendChild(thumb);
+
+      var body = document.createElement("div");
+
+      var nm = document.createElement("div");
+      nm.className = "item-name";
+      nm.textContent = it.name;
+      body.appendChild(nm);
+
+      var pr = document.createElement("div");
+      pr.className = "item-price";
+      pr.textContent = money(it.price);
+      body.appendChild(pr);
+
+      if (it.claimed) {
+        var taken = document.createElement("span");
+        taken.className = "item-taken";
+        taken.textContent = "Claimed";
+        body.appendChild(taken);
+      } else {
+        var act = document.createElement("div");
+        act.className = "item-act";
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = "I'll gift this";
+        b.addEventListener("click", function () { openClaim(it); });
+        act.appendChild(b);
+        body.appendChild(act);
+      }
+
+      row.appendChild(body);
+      itemsHost.appendChild(row);
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function (b) {
+    b.addEventListener("click", function () {
+      filter = b.getAttribute("data-filter");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), function (o) {
+        o.setAttribute("aria-pressed", String(o === b));
+      });
+      renderItems();
+    });
+  });
+
+  /* ---- Claim dialog ---- */
+
+  var claimDlg = document.getElementById("claim-dialog");
+  var claimMsg = document.getElementById("claim-msg");
+  var claiming = null;
+
+  function openClaim(item) {
+    claiming = item;
+    document.getElementById("claim-title").textContent = item.name;
+    document.getElementById("claim-price").textContent = money(item.price);
+    document.getElementById("claim-link").href = item.url;
+    claimMsg.textContent = "";
+    document.getElementById("claim-form").reset();
+    claimDlg.showModal();
+  }
+
+  document.getElementById("claim-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (document.getElementById("claim-website").value) return;   /* bot */
+
+    var name = document.getElementById("claim-name").value.trim();
+    var email = document.getElementById("claim-email").value.trim();
+
+    if (!name) { claimMsg.textContent = "Please add your name so we know who to thank."; return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      claimMsg.textContent = "That email doesn't look right — we'll send your confirmation there.";
+      return;
+    }
+
+    claiming.claimed = true;
+    claimDlg.close();
+    renderItems();
+  });
+
+  document.getElementById("claim-cancel").addEventListener("click", function () { claimDlg.close(); });
+
+  /* ---- Funds ---- */
+
+  var fundsHost = document.getElementById("funds-list");
+
+  function renderFunds() {
+    fundsHost.innerHTML = "";
+    FUNDS.forEach(function (f) {
+      var box = document.createElement("div");
+      box.className = "fund";
+
+      var h = document.createElement("h3");
+      h.textContent = f.name;
+      box.appendChild(h);
+
+      var p = document.createElement("p");
+      p.textContent = f.blurb;
+      box.appendChild(p);
+
+      var pct = Math.min(100, Math.round((f.raised / f.goal) * 100));
+      var bar = document.createElement("div");
+      bar.className = "progress";
+      bar.setAttribute("role", "progressbar");
+      bar.setAttribute("aria-valuenow", String(pct));
+      bar.setAttribute("aria-valuemin", "0");
+      bar.setAttribute("aria-valuemax", "100");
+      bar.setAttribute("aria-label", f.name + " progress");
+      var fill = document.createElement("b");
+      fill.style.width = pct + "%";
+      bar.appendChild(fill);
+      box.appendChild(bar);
+
+      var note = document.createElement("div");
+      note.className = "progress-note";
+      note.textContent = money(f.raised) + " from " + f.gifts + " gifts";
+      box.appendChild(note);
+
+      var btn = document.createElement("button");
+      btn.className = "btn";
+      btn.type = "button";
+      btn.style.marginTop = ".9rem";
+      btn.textContent = "Give to this";
+      btn.addEventListener("click", function () { openFund(f); });
+      box.appendChild(btn);
+
+      fundsHost.appendChild(box);
+    });
+  }
+
+  var fundDlg = document.getElementById("fund-dialog");
+  var fundMsg = document.getElementById("fund-msg");
+  var fundCustom = document.getElementById("fund-custom");
+  var giving = null;
+  var amount = 50;
+
+  function setAmount(n) {
+    amount = n;
+    Array.prototype.forEach.call(document.querySelectorAll("#fund-amounts button"), function (b) {
+      b.setAttribute("aria-pressed", String(Number(b.dataset.amt) === n));
+    });
+    var note = giving ? giving.name : "";
+    document.getElementById("fund-venmo").href =
+      "https://venmo.com/" + encodeURIComponent(VENMO) +
+      "?txn=pay&amount=" + n + "&note=" + encodeURIComponent(note);
+    document.getElementById("fund-paypal").href =
+      "https://paypal.me/" + encodeURIComponent(PAYPAL) + "/" + n;
+  }
+
+  function openFund(fund) {
+    giving = fund;
+    document.getElementById("fund-title").textContent = fund.name;
+    document.getElementById("fund-blurb").textContent = fund.blurb;
+    fundMsg.textContent = "";
+    fundCustom.value = "";
+    document.getElementById("fund-cancel").textContent = "Never mind";
+
+    var box = document.getElementById("fund-amounts");
+    box.innerHTML = "";
+    [25, 50, 100, 250].forEach(function (n) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.dataset.amt = String(n);
+      b.textContent = money(n);
+      b.addEventListener("click", function () { fundCustom.value = ""; setAmount(n); });
+      box.appendChild(b);
+    });
+
+    setAmount(50);
+    fundDlg.showModal();
+  }
+
+  fundCustom.addEventListener("input", function () {
+    var n = parseInt(fundCustom.value, 10);
+    if (n > 0) setAmount(n);
+  });
+
+  document.getElementById("fund-sent").addEventListener("click", function () {
+    giving.raised += amount;
+    giving.gifts += 1;
+    fundMsg.textContent = "Thank you — we'll look out for it.";
+    /* The dialog has done its job now, so the way out stops being a
+       "never mind" and becomes a plain close. */
+    document.getElementById("fund-cancel").textContent = "Close";
+    renderFunds();
+  });
+
+  document.getElementById("fund-cancel").addEventListener("click", function () { fundDlg.close(); });
+
+  renderItems();
+  renderFunds();
 
   /* ---------- Countdown ---------- */
   var target = new Date("2027-06-19T16:00:00").getTime();
