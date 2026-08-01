@@ -209,7 +209,7 @@ function readReplies() {
   return byParty;
 }
 
-// ---- Name matching (mirrors the same functions in index.html) ----
+// ---- Name matching (lives only here — the page has no copy of it) ----
 
 // Levenshtein distance, abandoned once it exceeds max.
 function editDistance(a, b, max) {
