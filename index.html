@@ -33,6 +33,8 @@
   --f-body:    'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
 
   --measure: 33rem;
+  --bar: 0px;          /* status bar height, measured at runtime */
+  --lace-w: 26px;      /* lace band width; the SVG slice is 30 */
   --r: 15px;                 /* scallop radius */
   color-scheme: only light;
 }
@@ -54,6 +56,17 @@ body {
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
 }
+
+/* Light falls off toward the edges, as it would on cloth. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(120% 90% at 50% 12%, #0000 45%, rgba(30,7,12,.42) 100%);
+}
+.shell, .preview-bar { position: relative; z-index: 1; }
 
 /* ============================================================
    SHARED PIECES
@@ -80,24 +93,40 @@ body {
   filter: drop-shadow(0 18px 34px rgba(24, 6, 10, .45));
 }
 
-/* Eyelet-lace band: a grid of pierced holes ringing the cream panel,
-   with a hairline brass rule holding the inner field. */
+/* Real lace: a nine-slice SVG of scalloped eyelet net with cut-out
+   rosettes. The holes are transparent, so the oxblood card underneath
+   shows through them the way it would through actual cloth. */
 .panel {
-  background:
-    radial-gradient(circle 2.1px, rgba(148,120,92,.32) 98%, #0000 100%)
-      0 0 / 11px 11px,
-    var(--lace);
-  padding: 15px;
-  border-radius: 3px;
+  border: var(--lace-w) solid transparent;
+  border-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%22120%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22n%22%20width%3D%223.8%22%20height%3D%226.612%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Ccircle%20cx%3D%221.90%22%20cy%3D%221.653%22%20r%3D%221.15%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%224.959%22%20r%3D%221.15%22%2F%3E%3Ccircle%20cx%3D%223.8%22%20cy%3D%224.959%22%20r%3D%221.15%22%2F%3E%3C%2Fpattern%3E%3Cg%20id%3D%22sf%22%3E%3Cpath%20d%3D%22M0%2C8%20Q7.50%2C-2.56%2015.00%2C8%20Q22.50%2C-2.56%2030.00%2C8%20Q37.50%2C-2.56%2045.00%2C8%20Q52.50%2C-2.56%2060.00%2C8%20Q67.50%2C-2.56%2075.00%2C8%20Q82.50%2C-2.56%2090.00%2C8%20Q97.50%2C-2.56%20105.00%2C8%20Q112.50%2C-2.56%20120.00%2C8%20L120%2C30%20L0%2C30%20Z%22%2F%3E%3C%2Fg%3E%3Cg%20id%3D%22sh%22%3E%3Crect%20x%3D%221.6%22%20y%3D%223.4%22%20width%3D%22116.8%22%20height%3D%2223.2%22%20fill%3D%22url(%23n)%22%2F%3E%3Ccircle%20cx%3D%2215.00%22%20cy%3D%2216.00%22%20r%3D%221.3%22%2F%3E%3Cellipse%20cx%3D%2219.40%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(90.0%2019.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2217.20%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(150.0%2017.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2212.80%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(210.0%2012.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2210.60%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(270.0%2010.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2212.80%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(330.0%2012.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2217.20%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(390.0%2017.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%2245.00%22%20cy%3D%2216.00%22%20r%3D%221.3%22%2F%3E%3Cellipse%20cx%3D%2249.40%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(90.0%2049.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2247.20%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(150.0%2047.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2242.80%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(210.0%2042.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2240.60%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(270.0%2040.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2242.80%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(330.0%2042.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2247.20%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(390.0%2047.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%2275.00%22%20cy%3D%2216.00%22%20r%3D%221.3%22%2F%3E%3Cellipse%20cx%3D%2279.40%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(90.0%2079.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2277.20%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(150.0%2077.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2272.80%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(210.0%2072.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2270.60%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(270.0%2070.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2272.80%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(330.0%2072.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2277.20%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(390.0%2077.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%22105.00%22%20cy%3D%2216.00%22%20r%3D%221.3%22%2F%3E%3Cellipse%20cx%3D%22109.40%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(90.0%20109.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%22107.20%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(150.0%20107.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%22102.80%22%20cy%3D%2219.81%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(210.0%20102.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%22100.60%22%20cy%3D%2216.00%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(270.0%20100.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%22102.80%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(330.0%20102.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%22107.20%22%20cy%3D%2212.19%22%20rx%3D%221.5%22%20ry%3D%222.5%22%20transform%3D%22rotate(390.0%20107.20%2012.19)%22%2F%3E%3C%2Fg%3E%3Cg%20id%3D%22cf%22%3E%3Cpath%20d%3D%22M0%2C30%20L0%2C10%20Q10%2C10%2010%2C0%20L30%2C0%20L30%2C30%20Z%22%2F%3E%3C%2Fg%3E%3Cg%20id%3D%22ch%22%3E%3Crect%20x%3D%224.2%22%20y%3D%224.2%22%20width%3D%2222.4%22%20height%3D%2222.4%22%20fill%3D%22url(%23n)%22%2F%3E%3Ccircle%20cx%3D%2218.00%22%20cy%3D%2218.00%22%20r%3D%221.3%22%2F%3E%3Cellipse%20cx%3D%2223.00%22%20cy%3D%2218.00%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(90.0%2023.00%2018.00)%22%2F%3E%3Cellipse%20cx%3D%2221.54%22%20cy%3D%2221.54%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(135.0%2021.54%2021.54)%22%2F%3E%3Cellipse%20cx%3D%2218.00%22%20cy%3D%2223.00%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(180.0%2018.00%2023.00)%22%2F%3E%3Cellipse%20cx%3D%2214.46%22%20cy%3D%2221.54%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(225.0%2014.46%2021.54)%22%2F%3E%3Cellipse%20cx%3D%2213.00%22%20cy%3D%2218.00%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(270.0%2013.00%2018.00)%22%2F%3E%3Cellipse%20cx%3D%2214.46%22%20cy%3D%2214.46%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(315.0%2014.46%2014.46)%22%2F%3E%3Cellipse%20cx%3D%2218.00%22%20cy%3D%2213.00%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(360.0%2018.00%2013.00)%22%2F%3E%3Cellipse%20cx%3D%2221.54%22%20cy%3D%2214.46%22%20rx%3D%221.6%22%20ry%3D%222.7%22%20transform%3D%22rotate(405.0%2021.54%2014.46)%22%2F%3E%3C%2Fg%3E%3Cmask%20id%3D%22h%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22120%22%20height%3D%22120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23fff%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Cuse%20href%3D%22%23sh%22%20transform%3D%22rotate(0%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23sh%22%20transform%3D%22rotate(90%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23sh%22%20transform%3D%22rotate(180%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23sh%22%20transform%3D%22rotate(270%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23ch%22%20transform%3D%22rotate(0%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23ch%22%20transform%3D%22rotate(90%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23ch%22%20transform%3D%22rotate(180%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23ch%22%20transform%3D%22rotate(270%2060.0%2060.0)%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20fill%3D%22%23FAF4E9%22%20mask%3D%22url(%23h)%22%3E%3Cuse%20href%3D%22%23sf%22%20transform%3D%22rotate(0%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23sf%22%20transform%3D%22rotate(90%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23sf%22%20transform%3D%22rotate(180%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23sf%22%20transform%3D%22rotate(270%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23cf%22%20transform%3D%22rotate(0%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23cf%22%20transform%3D%22rotate(90%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23cf%22%20transform%3D%22rotate(180%2060.0%2060.0)%22%2F%3E%3Cuse%20href%3D%22%23cf%22%20transform%3D%22rotate(270%2060.0%2060.0)%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 30 round;
+  background: #0000;
 }
+
 .field {
+  position: relative;
   background: var(--cream);
-  border: 1px solid rgba(168,135,90,.5);
-  outline: 1px solid rgba(250,244,233,.6);
-  outline-offset: 2px;
   color: var(--ink);
   padding: clamp(1.6rem, 6vw, 2.6rem) clamp(1.1rem, 5vw, 2rem);
   text-align: center;
+  /* Letterpress: light catching the top edge, the plate biting at the
+     bottom. Plus a hairline rule just inside, as on the printed card. */
+  box-shadow:
+    inset 0 1px 0 rgba(255,252,246,.85),
+    inset 0 -1px 0 rgba(120,95,70,.14),
+    inset 0 0 0 1px rgba(168,135,90,.28),
+    0 1px 2px rgba(58,16,24,.10);
+}
+
+/* Paper grain, multiplied over the field so it darkens rather than
+   fogs. Pointer-events off so it never intercepts a tap. */
+.field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%3E%3Cfilter%20id%3D%22g%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.85%22%20numOctaves%3D%224%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20filter%3D%22url(%23g)%22%20opacity%3D%220.5%22%2F%3E%3C%2Fsvg%3E");
+  mix-blend-mode: multiply;
+  opacity: .05;
+  pointer-events: none;
 }
 
 .eyebrow {
@@ -140,10 +169,55 @@ h2.sec-title {
 .section { padding: clamp(2.5rem, 9vw, 4.5rem) 0; }
 
 /* ============================================================
+   LAYOUT
+
+   One column on a phone. On a wide screen the invitation stops
+   scrolling and holds the left edge while the details move past it,
+   which is what a desktop has the room to do and a phone does not.
+   ============================================================ */
+
+.shell { display: block; }
+.pane-nav { display: none; }
+
+/* Clipped rather than parked off-canvas at -9999px, which sits outside
+   the page box and can drag the layout sideways. */
+.skip {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.skip:focus {
+  position: fixed;
+  top: .5rem;
+  left: .5rem;
+  z-index: 60;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  background: var(--cream);
+  color: var(--ink);
+  padding: .7rem 1.1rem;
+  font-family: var(--f-caps);
+  font-size: .7rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+
+
+/* ============================================================
    STATUS BANNER + NAV
    ============================================================ */
 
 .preview-bar {
+  /* Sticky so the sticky pane below it never opens a gap at the top. */
+  position: sticky;
+  top: 0;
+  z-index: 30;
   background: var(--oxblood-dark);
   border-bottom: 1px solid rgba(168,135,90,.35);
   color: var(--brass-pale);
@@ -189,6 +263,7 @@ nav a {
   border-bottom: 1px solid #0000;
 }
 nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(--brass); }
+.topbar a[aria-current="true"] { color: var(--lace); border-bottom-color: var(--brass); }
 
 /* ============================================================
    HERO
@@ -282,10 +357,13 @@ nav a:hover, nav a:focus-visible { color: var(--lace); border-bottom-color: var(
   text-decoration: none;
   cursor: pointer;
   border-radius: 2px;
-  transition: background .18s ease, color .18s ease;
+  background-image: linear-gradient(rgba(255,255,255,.09), rgba(0,0,0,.06));
+  box-shadow: 0 1px 2px rgba(58,16,24,.28), inset 0 1px 0 rgba(255,255,255,.14);
+  transition: background-color .18s ease, color .18s ease, transform .12s ease, box-shadow .18s ease;
 }
-.btn:hover, .btn:focus-visible { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
-.btn.ghost { background: #0000; color: var(--oxblood); }
+.btn:hover, .btn:focus-visible { background-color: var(--oxblood-deep); border-color: var(--oxblood-deep); }
+.btn:active { transform: translateY(1px); box-shadow: 0 0 0 rgba(0,0,0,0), inset 0 1px 3px rgba(0,0,0,.22); }
+.btn.ghost { background: #0000; background-image: none; color: var(--oxblood); box-shadow: none; }
 .btn.ghost:hover, .btn.ghost:focus-visible { background: var(--oxblood); color: var(--lace); }
 
 a:focus-visible, button:focus-visible, input:focus-visible,
@@ -453,6 +531,33 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
 
 .diet-row { margin-top: .1rem; }
 .diet-row input { font-size: .92rem; padding: .55rem .7rem; }
+
+/* ============================================================
+   STORY
+   ============================================================ */
+
+.story { text-align: left; }
+.story p { margin: 0 0 .9rem; color: var(--ink-soft); font-size: .95rem; }
+.story p:last-child { margin-bottom: 0; }
+.story-lead {
+  font-family: var(--f-display);
+  font-size: 1.12rem;
+  line-height: 1.5;
+  color: var(--ink) !important;
+  text-wrap: pretty;
+}
+/* A drop cap on the opening line, the way a printed order of service
+   would set it. */
+.story-lead::first-letter {
+  float: left;
+  font-size: 3.1em;
+  line-height: .82;
+  padding: .05em .12em 0 0;
+  color: var(--brass);
+}
+
+.hero-acts { display: grid; gap: .55rem; justify-items: stretch; }
+.hero-acts .btn { width: 100%; }
 
 /* ============================================================
    SCHEDULE
@@ -687,6 +792,93 @@ footer a { color: var(--lace); }
 }
 
 html { scroll-behavior: smooth; }
+
+/* Desktop last, so these override the single-column defaults. */
+@media (min-width: 64rem) {
+  .shell {
+    display: grid;
+    grid-template-columns: clamp(23rem, 31vw, 29rem) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* The card may be taller than the viewport, so it scrolls inside the
+     pane while the index stays pinned below it — otherwise the only
+     desktop navigation disappears off the bottom. */
+  .pane {
+    position: sticky;
+    top: var(--bar, 0px);
+    height: calc(100vh - var(--bar, 0px));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .pane-inner {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding-block: 1.5rem 1rem;
+  }
+  .pane-inner { padding-inline: .7rem; }
+
+  /* The pane is narrower than the page, so the card's own chrome —
+     die-cut margin, lace band, field padding — has to give ground or
+     there is nothing left for the words. */
+  .pane { --lace-w: 20px; --r: 12px; }
+  .pane .field { padding: 1.6rem 1.05rem; }
+
+  .topbar { display: none; }
+
+  .flow { padding-inline: clamp(1.5rem, 4vw, 4.5rem); }
+  .flow .wrap { width: min(100%, 34rem); margin-inline: auto; }
+  .flow .section:first-of-type { padding-top: 3.5rem; }
+
+  .hero { padding: 0; }
+  .hero .field { padding-block: 2.1rem; }
+  .names { font-size: clamp(1.9rem, 2.6vw, 2.45rem); }
+  .countdown { max-width: none; margin-block: 1.1rem .95rem; }
+  .hero-date { font-size: .66rem; letter-spacing: .13em; margin-top: 1.2rem; }
+  .hero-place { font-size: .88rem; }
+  .invited { letter-spacing: .2em; margin-bottom: .9rem; }
+  .pane .hero-acts { gap: .45rem; }
+  .pane .btn { padding: .8rem 1rem; }
+
+  /* Vertical index. The rule beside each entry grows into the active
+     one, so position in the page is legible without a scrollbar. */
+  .pane-nav {
+    display: block;
+    flex: 0 0 auto;
+    border-top: 1px solid rgba(168,135,90,.28);
+    background: linear-gradient(rgba(58,16,24,0), rgba(58,16,24,.35));
+    padding: .6rem 1.1rem .9rem;
+  }
+  .pane-nav ul { list-style: none; margin: 0; padding: 0; display: grid; }
+  .pane-nav a {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .38rem .3rem;
+    font-family: var(--f-caps);
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    font-size: .62rem;
+    color: var(--brass-pale);
+    text-decoration: none;
+    opacity: .75;
+    transition: opacity .2s ease, color .2s ease;
+  }
+  .pane-nav a::before {
+    content: "";
+    width: 1.1rem;
+    height: 1px;
+    background: currentColor;
+    opacity: .55;
+    transition: width .28s cubic-bezier(.2,.7,.3,1), opacity .28s ease;
+  }
+  .pane-nav a:hover, .pane-nav a:focus-visible { opacity: 1; }
+  .pane-nav a[aria-current="true"] { color: var(--lace); opacity: 1; }
+  .pane-nav a[aria-current="true"]::before { width: 2.3rem; opacity: 1; }
+}
 </style>
 </head>
 <body>
@@ -695,18 +887,15 @@ html { scroll-behavior: smooth; }
   In progress &middot; the date is provisional and the times below aren't final
 </div>
 
-<nav>
-  <ul>
-    <li><a href="#day">The Day</a></li>
-    <li><a href="#where">Where</a></li>
-    <li><a href="#wear">What to Wear</a></li>
-    <li><a href="#rsvp">RSVP</a></li>
-    <li><a href="#registry">Registry</a></li>
-    <li><a href="#faq">Questions</a></li>
-  </ul>
-</nav>
 
-<!-- ========================= HERO ========================= -->
+<a class="skip" href="#story">Skip to the details</a>
+
+<div class="shell">
+
+<!-- The invitation itself. On a phone it heads the page; on a desktop it
+     stays put in the left column while the details scroll past it. -->
+<aside class="pane">
+ <div class="pane-inner">
 <header class="hero wrap">
   <div class="card">
     <div class="panel">
@@ -725,11 +914,56 @@ html { scroll-behavior: smooth; }
           <div class="cd-cell"><div class="cd-num" id="cd-s">&mdash;</div><div class="cd-lab">Seconds</div></div>
         </div>
 
-        <a class="btn" href="#rsvp">Reply to your invitation</a>
+        <div class="hero-acts">
+          <a class="btn" href="#rsvp">Reply to your invitation</a>
+          <button class="btn ghost" type="button" id="add-cal">Add to calendar</button>
+        </div>
       </div>
     </div>
   </div>
 </header>
+
+ </div>
+ <nav class="pane-nav" id="pane-nav" aria-label="Sections"></nav>
+</aside>
+
+<main class="flow">
+
+  <nav class="topbar" id="topbar" aria-label="Sections">
+    <ul>
+      <li><a href="#story">Our Story</a></li>
+      <li><a href="#day">The Day</a></li>
+      <li><a href="#where">Where</a></li>
+      <li><a href="#wear">What to Wear</a></li>
+      <li><a href="#rsvp">RSVP</a></li>
+      <li><a href="#registry">Registry</a></li>
+      <li><a href="#faq">Questions</a></li>
+    </ul>
+  </nav>
+
+<!-- ========================= OUR STORY ========================= -->
+<section class="section wrap reveal" id="story">
+  <div class="card">
+    <div class="panel">
+      <div class="field">
+        <p class="eyebrow">How we got here</p>
+        <h2 class="sec-title">Our Story</h2>
+        <div class="rule"><i></i></div>
+
+        <div class="story">
+          <p class="story-lead">We met on an ordinary Tuesday, and nothing has been quite so ordinary since.</p>
+          <p>Tell the bit about how you actually met here &mdash; who introduced you, where you were, what you thought of each other at the time. Guests read this part properly, and the small specific details are the ones they remember.</p>
+          <p>Then the proposal. Where it happened, whether anyone cried, whether the ring nearly ended up in a lake.</p>
+          <p>And a line about what comes next, which is all of you in a church in Boise on a Saturday in June.</p>
+        </div>
+
+        <div class="demo-note">
+          <p><strong>Placeholder:</strong> send us however you'd like this written and it goes straight in. A photo of the two of you would sit well here too.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ========================= THE DAY ========================= -->
 <section class="section wrap reveal" id="day">
@@ -996,6 +1230,9 @@ html { scroll-behavior: smooth; }
   <p>Questions we haven't answered? Write to <a href="mailto:lcrane644@gmail.com">lcrane644@gmail.com</a></p>
   <p style="opacity:.65;">Logan &amp; Mary Lou &middot; June 19, 2027 &middot; Boise, Idaho</p>
 </footer>
+
+</main>
+</div>
 
 <dialog class="modal" id="maps-dialog" aria-labelledby="maps-title">
   <div class="modal-card">
@@ -1843,6 +2080,104 @@ html { scroll-behavior: smooth; }
     var demoBox = document.querySelector("#step-find .demo-note");
     if (demoBox) demoBox.hidden = true;
   }
+
+  /* The status bar sits above the sticky pane, so the pane has to know
+     how tall it is or it hangs that far below the fold. */
+  (function measureBar() {
+    var bar = document.querySelector(".preview-bar");
+    if (!bar) return;
+    var set = function () {
+      document.documentElement.style.setProperty("--bar", bar.offsetHeight + "px");
+    };
+    set();
+    if ("ResizeObserver" in window) new ResizeObserver(set).observe(bar);
+    else window.addEventListener("resize", set);
+  })();
+
+  /* ---------- Desktop index, mirrored from the mobile bar ----------
+     Written once in the markup and cloned, so the two navigations can
+     never drift apart. */
+  var topbar = document.getElementById("topbar");
+  var paneNav = document.getElementById("pane-nav");
+  var navLinks = [];
+
+  (function buildNav() {
+    var list = document.createElement("ul");
+    Array.prototype.forEach.call(topbar.querySelectorAll("a"), function (a) {
+      var li = document.createElement("li");
+      var copy = document.createElement("a");
+      copy.href = a.getAttribute("href");
+      copy.textContent = a.textContent;
+      li.appendChild(copy);
+      list.appendChild(li);
+    });
+    paneNav.appendChild(list);
+    navLinks = Array.prototype.slice.call(
+      document.querySelectorAll('#topbar a[href^="#"], #pane-nav a[href^="#"]'));
+  })();
+
+  /* ---------- Which section am I in ---------- */
+  (function scrollSpy() {
+    var sections = Array.prototype.slice.call(document.querySelectorAll("main .section[id]"));
+    if (!sections.length || !("IntersectionObserver" in window)) return;
+
+    var seen = {};
+
+    function mark() {
+      /* The topmost section still on screen wins, so a short section
+         scrolled past doesn't keep the highlight. */
+      var active = null;
+      for (var i = 0; i < sections.length; i++) {
+        if (seen[sections[i].id]) { active = sections[i].id; break; }
+      }
+      navLinks.forEach(function (a) {
+        var on = a.getAttribute("href") === "#" + active;
+        if (on) a.setAttribute("aria-current", "true");
+        else a.removeAttribute("aria-current");
+      });
+    }
+
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { seen[en.target.id] = en.isIntersecting; });
+      mark();
+    }, { rootMargin: "-25% 0px -55% 0px" });
+
+    sections.forEach(function (s) { spy.observe(s); });
+  })();
+
+  /* ---------- Add to calendar ----------
+     Built here rather than linked out, so no third party learns who is
+     coming to the wedding. Times are UTC: 3:30pm Mountain is 21:30Z,
+     which every calendar app resolves to the right local time. */
+  document.getElementById("add-cal").addEventListener("click", function () {
+    var esc = function (s) { return String(s).replace(/([,;\\])/g, "\\$1"); };
+    var ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Logan and Mary Lou//Wedding//EN",
+      "CALSCALE:GREGORIAN",
+      "BEGIN:VEVENT",
+      "UID:logan-marylou-20270619@wedding.invalid",
+      "DTSTAMP:20260101T000000Z",
+      "DTSTART:20270619T213000Z",
+      "DTEND:20270620T030000Z",
+      "SUMMARY:" + esc("Logan & Mary Lou's Wedding"),
+      "LOCATION:" + esc("Surprise Valley Eagle Christian Church, 4601 S Surprise Way, Boise, ID 83716"),
+      "DESCRIPTION:" + esc("Ceremony at 4:00pm, doors from 3:30pm. Reception follows at the church."),
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].join("\r\n");
+
+    var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "logan-and-mary-lou.ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
 
   /* ---------- Reveal on scroll ---------- */
   if ("IntersectionObserver" in window) {
