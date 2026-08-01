@@ -489,97 +489,6 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
 .reg-blurb { margin: .3rem 0 .9rem; font-size: .9rem; color: var(--ink-soft); }
 .reg-half > .btn { display: block; width: 100%; text-align: center; }
 
-/* ---- Amount picker ---- */
-
-.gift-display {
-  font-family: var(--f-display);
-  font-size: 2.1rem;
-  color: var(--ink);
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-  margin: .3rem 0 0;
-}
-
-.slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 34px;                 /* the grab area, not the track */
-  background: #0000;
-  margin: .35rem 0 0;
-  cursor: pointer;
-}
-.slider::-webkit-slider-runnable-track {
-  height: 3px;
-  background: rgba(156,129,84,.4);
-}
-.slider::-moz-range-track {
-  height: 3px;
-  background: rgba(156,129,84,.4);
-}
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  margin-top: -10.5px;          /* centre the thumb on a 3px track */
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--oxblood);
-  border: 2px solid var(--lace);
-  box-shadow: 0 1px 5px rgba(30,15,17,.4);
-  cursor: pointer;
-}
-.slider::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--oxblood);
-  border: 2px solid var(--lace);
-  box-shadow: 0 1px 5px rgba(30,15,17,.4);
-  cursor: pointer;
-}
-.slider:focus-visible { outline: 2px solid var(--brass); outline-offset: 7px; }
-
-.slider-ends {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--f-caps);
-  font-size: .58rem;
-  letter-spacing: .12em;
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-  margin-bottom: .8rem;
-}
-
-.amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; margin: 0 0 .8rem; }
-.amounts button {
-  font-family: var(--f-caps);
-  font-size: .72rem;
-  letter-spacing: .04em;
-  min-height: 36px;
-  background: var(--lace);
-  border: 1px solid rgba(156,129,84,.5);
-  color: var(--ink);
-  padding: .5rem .2rem;
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
-}
-.amounts button[aria-pressed="true"] { background: var(--oxblood); color: var(--lace); border-color: var(--oxblood); }
-
-/* Amount and name sit side by side once there's room for them. */
-.gift-fields { display: grid; gap: .7rem; margin-bottom: .9rem; }
-@media (min-width: 26rem) { .gift-fields { grid-template-columns: 1fr 1.4fr; } }
-
-.gift-thanks {
-  background: rgba(156,129,84,.13);
-  border-left: 2px solid var(--brass);
-  padding: .9rem 1rem;
-  font-size: .9rem;
-  color: var(--ink);
-  margin: 1rem 0 0;
-}
-
 /* ---- The reply modal ----
    Long forms invite distraction. This one holds the screen: the page
    behind is frozen, the sheet scrolls on its own, and the only ways out
@@ -703,6 +612,53 @@ body.scroll-locked {
 
 .hero-acts { display: grid; gap: .55rem; justify-items: stretch; }
 .hero-acts .btn { width: 100%; }
+
+/* ---- Photographs ----
+   Printed snapshots: a white border, a hairline, and a shadow, so they
+   read as prints laid on the card rather than images on a web page. */
+
+.gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+  margin-top: 1.4rem;
+}
+.shot {
+  display: block;
+  padding: 5px 5px 5px;
+  border: 0;
+  background: var(--lace);
+  box-shadow: 0 1px 3px rgba(30,15,17,.3), inset 0 0 0 1px rgba(156,129,84,.35);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.shot img { display: block; width: 100%; height: 100%; object-fit: cover; aspect-ratio: 3 / 4; }
+.shot.wide { grid-column: 1 / -1; }
+.shot.wide img { aspect-ratio: 16 / 9; }
+/* Three portraits into two columns leaves an orphan, so the last one
+   takes the full width and a landscape crop. */
+.shot:last-child { grid-column: 1 / -1; }
+.shot:last-child img { aspect-ratio: 16 / 9; object-position: 50% 30%; }
+.shot:hover, .shot:focus-visible { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(30,15,17,.36); }
+
+/* The lightbox holds one photograph and nothing else. */
+.lightbox { width: min(96vw, 60rem); }
+.lightbox .modal-card { padding: .7rem .7rem .5rem; }
+.lightbox img {
+  display: block;
+  width: 100%;
+  max-height: 76svh;
+  object-fit: contain;
+  background: var(--oxblood-dark);
+}
+.lb-cap {
+  font-family: var(--f-caps);
+  font-size: .62rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: .6rem 0 .2rem;
+}
 
 /* ============================================================
    SCHEDULE
@@ -1011,8 +967,50 @@ html { scroll-behavior: smooth; }
   align-items: center;
   justify-content: center;
   padding: clamp(2rem, 6vw, 4.5rem) .875rem;
+  isolation: isolate;
 }
 .hero-card { width: min(100%, 30rem); }
+
+/* The photograph is the ground the invitation is laid on. */
+.hero-photo { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* A phone crops a wide photograph hard. Favour the top of the frame,
+     where the sky is, over the middle, which the card covers anyway. */
+  object-position: 50% 26%;
+}
+@media (min-width: 60rem) { .hero-photo img { object-position: 50% 42%; } }
+/* Two scrims: an oxblood wash to pull the photograph into the palette,
+   and a vignette so the card has something dark to sit against. */
+.hero-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(125% 85% at 50% 42%, rgba(54,27,31,.10) 0%, rgba(43,20,24,.62) 100%),
+    linear-gradient(rgba(107,52,59,.20), rgba(78,38,43,.34));
+}
+
+/* Translucent so the photograph reads through the card and through the
+   holes in the lace — opaque enough that the type never has to fight it.
+   The blur is what buys that: it takes the detail out of whatever is
+   behind the words without taking the colour out of it. */
+.hero .card { background: rgba(107,52,59,.44); }
+.hero .field {
+  background: rgba(233,220,197,.88);
+  -webkit-backdrop-filter: blur(7px) saturate(.85);
+  backdrop-filter: blur(7px) saturate(.85);
+}
+/* Twelve per cent of an unknown photograph shows through the card, and
+   over a dark frame that costs the softer inks their contrast (4.1:1 at
+   worst). In the hero they get a darker pair that holds up over
+   anything: 5.4:1 against the blackest backdrop a photo can give. */
+.hero .invited,
+.hero .hero-place,
+.hero .cd-lab { color: #52443A; }
+.hero .amp { color: #5A4325; }
 
 /* ============================================================
    DESKTOP
@@ -1112,6 +1110,24 @@ html { scroll-behavior: smooth; }
 
   .schedule, .stack, .faq, .story { max-width: 34rem; margin-inline: auto; }
   .items, .funds, .reg-half { max-width: 32rem; margin-inline: auto; }
+
+  /* The story gets the width a desktop actually has: words on the left,
+     photographs on the right, instead of one narrow column of text. */
+  #story .wrap { width: min(100% - 4rem, 62rem); }
+  .story-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 2.4rem;
+    align-items: start;
+    text-align: left;
+  }
+  /* The words are shorter than the photographs are tall; centring them
+     against the column keeps the left side from ending in a void. */
+  .story-grid .story { max-width: none; margin: 0; align-self: center; }
+  .story-grid .gallery { margin-top: .3rem; grid-template-columns: repeat(3, 1fr); }
+  .story-grid .shot:last-child { grid-column: auto; }
+  .story-grid .shot:last-child img { aspect-ratio: 3 / 4; }
+  #story .note { max-width: 62rem; }
 }
 
 </style>
@@ -1138,6 +1154,12 @@ html { scroll-behavior: smooth; }
 </nav>
 
 <header class="hero">
+ <div class="hero-photo">
+   <img src="img/hero-1200.jpg"
+        srcset="img/hero-1200.jpg 1200w, img/hero-2000.jpg 2000w"
+        sizes="100vw" alt="Logan and Mary Lou at sunset"
+        width="2000" height="1125" fetchpriority="high">
+ </div>
  <div class="hero-card">
   <div class="card">
     <div class="panel">
@@ -1177,14 +1199,34 @@ html { scroll-behavior: smooth; }
         <h2 class="sec-title">Our Story</h2>
         <div class="rule"><i></i></div>
 
-        <div class="story">
-          <p class="story-lead">We met on an ordinary Tuesday, in the least romantic place either of us can think of, and nothing has been quite so ordinary since.</p>
-          <p>Tell the bit about how you actually met here &mdash; who introduced you, where you were, what you thought of each other at the time. Guests read this part properly, and the small specific details are the ones they remember.</p>
-          <p>Then the proposal. Where it happened, whether anyone cried, whether the ring nearly ended up in a lake.</p>
-          <p>And a line about what comes next, which is all of you in a church in Boise on a Saturday in June.</p>
+        <div class="story-grid">
+          <div class="story">
+            <p class="story-lead">We met on an ordinary Tuesday, in the least romantic place either of us can think of, and nothing has been quite so ordinary since.</p>
+            <p>Tell the bit about how you actually met &mdash; who introduced you, where you were, what you thought of each other at the time. The small specific details are the ones guests remember.</p>
+            <p>Then the proposal, and a line about what comes next: all of you, in a church in Boise, on a Saturday in June.</p>
+          </div>
+
+          <div class="gallery" id="gallery">
+            <a class="shot wide" href="img/gallery-1-1400.jpg" data-cap="At the concert">
+              <img src="img/gallery-1-700.jpg" alt="Logan and Mary Lou at a concert"
+                   width="700" height="394" loading="lazy" decoding="async">
+            </a>
+            <a class="shot" href="img/gallery-2-1400.jpg" data-cap="A very small chicken">
+              <img src="img/gallery-2-700.jpg" alt="Mary Lou holding a chick"
+                   width="700" height="1244" loading="lazy" decoding="async">
+            </a>
+            <a class="shot" href="img/gallery-3-1400.jpg" data-cap="Roses">
+              <img src="img/gallery-3-700.jpg" alt="Mary Lou with a bunch of red roses"
+                   width="700" height="1244" loading="lazy" decoding="async">
+            </a>
+            <a class="shot" href="img/gallery-4-1400.jpg" data-cap="An evening out">
+              <img src="img/gallery-4-700.jpg" alt="Mary Lou outside on a summer evening"
+                   width="700" height="1244" loading="lazy" decoding="async">
+            </a>
+          </div>
         </div>
 
-        <p class="note"><strong>Placeholder</strong> &mdash; send this however you'd like it written and it goes straight in. A photo of the two of you would sit well here too.</p>
+        <p class="note"><strong>Placeholder</strong> &mdash; send the words however you'd like them written, and swap the photographs whenever you have the ones you want. <code>img/README.md</code> says which file is which.</p>
       </div>
     </div>
   </div>
@@ -1331,33 +1373,13 @@ html { scroll-behavior: smooth; }
 
         <div class="reg-half">
           <p class="detail-h">A cash gift</p>
-          <p class="reg-blurb">Toward the honeymoon and the day itself. Any amount is generous.</p>
+          <p class="reg-blurb">Toward the honeymoon and the wedding expenses. Any amount is generous.</p>
 
-          <div class="gift-display" id="gift-display">$50</div>
+          <a class="btn btn-orn" id="gift-go"
+             href="https://venmo.com/u/Logan-Crane-23?txn=pay&amp;note=Logan%20%26%20Mary%20Lou%27s%20wedding"
+             target="_blank" rel="noopener"><span>Send a cash gift on Venmo</span></a>
 
-          <input class="slider" id="gift-slider" type="range" min="5" max="500" step="5" value="50"
-                 aria-label="Gift amount in dollars">
-          <div class="slider-ends"><span>$5</span><span>$500</span></div>
-
-          <div class="amounts" id="gift-chips" role="group" aria-label="Common amounts"></div>
-
-          <div class="gift-fields">
-            <div class="form-row">
-              <label for="gift-amount">Other amount</label>
-              <input class="input" id="gift-amount" type="number" min="1" max="10000" step="1"
-                     inputmode="numeric" value="50">
-            </div>
-            <div class="form-row">
-              <label for="gift-name">Your name</label>
-              <input class="input" id="gift-name" autocomplete="name" placeholder="So we can match it up">
-            </div>
-          </div>
-
-          <a class="btn btn-orn" id="gift-go" href="https://venmo.com/u/Logan-Crane-23"
-             target="_blank" rel="noopener"><span>Continue to Venmo</span></a>
-
-          <p class="sub" style="margin-top:.7rem;">Venmo opens with the amount filled in.</p>
-          <div class="gift-thanks" id="gift-thanks" hidden></div>
+          <p class="sub" style="margin-top:.7rem;">Opens Venmo on our profile &mdash; send whatever you'd like.</p>
         </div>
 
       </div>
@@ -1480,6 +1502,33 @@ html { scroll-behavior: smooth; }
   </div>
 </dialog>
 
+<!-- A .ics file is the private option, but Android hands it to the
+     downloads tray and often nothing opens it, so the web calendars are
+     offered alongside. -->
+<dialog class="modal" id="cal-dialog" aria-labelledby="cal-title">
+  <div class="modal-card">
+    <p class="eyebrow">Save the date</p>
+    <h3 id="cal-title">Add to your calendar</h3>
+    <p class="maps-addr">Saturday, June 19, 2027 &middot; from 3:30pm</p>
+
+    <div class="modal-choices">
+      <a class="btn" id="cal-google" href="#" target="_blank" rel="noopener">Google Calendar</a>
+      <a class="btn" id="cal-outlook" href="#" target="_blank" rel="noopener">Outlook</a>
+      <button class="btn ghost" type="button" id="cal-ics">Apple Calendar &middot; other apps</button>
+    </div>
+
+    <button class="modal-cancel" type="button" id="cal-cancel">Never mind</button>
+  </div>
+</dialog>
+
+<dialog class="modal lightbox" id="lightbox" aria-label="Photograph">
+  <div class="modal-card">
+    <button class="modal-x" type="button" id="lb-close" aria-label="Close">&times;</button>
+    <img id="lb-img" alt="">
+    <p class="lb-cap" id="lb-cap"></p>
+  </div>
+</dialog>
+
 <script>
 (function () {
   "use strict";
@@ -1521,103 +1570,9 @@ html { scroll-behavior: smooth; }
     a.addEventListener("click", function () { mapsDlg.close(); });
   });
 
-  /* ================================================================
-     VENMO GIFT
-
-     Venmo has no public API for personal accounts, so the page cannot
-     confirm that money actually arrived. What it can do is capture the
-     intent — amount and name — and hand off with both prefilled. The
-     match against the real Venmo receipts is a manual step by design.
-
-     Prefill parameters are best-effort: Venmo has changed how it honours
-     them, and behaviour differs across iOS, Android and desktop. If they
-     are dropped the guest still lands on the right profile, having just
-     seen the amount on screen, so the worst case is typing it again.
-     ================================================================ */
-
-  var VENMO_USER = "Logan-Crane-23";
-  var GIFT_NOTE  = "Logan & Mary Lou's wedding";
-
-  var giftSlider  = document.getElementById("gift-slider");
-  var giftField   = document.getElementById("gift-amount");
-  var giftDisplay = document.getElementById("gift-display");
-  var giftGo      = document.getElementById("gift-go");
-  var giftNameEl  = document.getElementById("gift-name");
-  var giftChips   = document.getElementById("gift-chips");
-
-  var giftAmount = 50;
-
-  function dollars(n) { return "$" + Number(n).toLocaleString("en-US"); }
-
-  /* `source` is whichever control the guest just touched — writing back
-     to it mid-drag fights the browser, so it is left alone. */
-  function setGift(n, source) {
-    n = Math.round(Number(n) || 0);
-    if (!(n > 0)) n = 1;
-    if (n > 10000) n = 10000;
-    giftAmount = n;
-
-    giftDisplay.textContent = dollars(n);
-    if (source !== "slider") giftSlider.value = Math.max(5, Math.min(500, n));
-    if (source !== "field") giftField.value = n;
-
-    Array.prototype.forEach.call(giftChips.children, function (b) {
-      b.setAttribute("aria-pressed", String(Number(b.dataset.amt) === n));
-    });
-
-    giftGo.href = "https://venmo.com/u/" + VENMO_USER +
-      "?txn=pay&amount=" + n + "&note=" + encodeURIComponent(GIFT_NOTE);
-  }
-
-  [25, 50, 100, 250].forEach(function (n) {
-    var b = document.createElement("button");
-    b.type = "button";
-    b.dataset.amt = String(n);
-    b.textContent = dollars(n);
-    b.addEventListener("click", function () { setGift(n, "chip"); });
-    giftChips.appendChild(b);
-  });
-
-  giftSlider.addEventListener("input", function () { setGift(giftSlider.value, "slider"); });
-  giftField.addEventListener("input", function () {
-    if (giftField.value !== "") setGift(giftField.value, "field");
-  });
-  /* An empty or nonsense box on blur snaps back to the live amount
-     rather than leaving the guest looking at a blank field. */
-  giftField.addEventListener("blur", function () { setGift(giftAmount, "none"); });
-
-  /* Venmo opens in a new tab so this page survives the click, but a
-     beacon is used where it exists so the write still lands if the
-     browser decides to freeze us anyway. Failures are swallowed: a
-     missed log entry must never get between a guest and paying. */
-  function logGift(payload) {
-    if (!RSVP_API) return;
-    var body = JSON.stringify(payload);
-    if (navigator.sendBeacon) {
-      try {
-        navigator.sendBeacon(RSVP_API, new Blob([body], { type: "text/plain;charset=utf-8" }));
-        return;
-      } catch (err) { /* fall through */ }
-    }
-    fetch(RSVP_API, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: body,
-      keepalive: true
-    }).catch(function () {});
-  }
-
-  giftGo.addEventListener("click", function () {
-    var who = giftNameEl.value.trim();
-    var thanks = document.getElementById("gift-thanks");
-    thanks.textContent = "Thank you" + (who ? ", " + who : "") +
-      " — we've noted " + dollars(giftAmount) + " and we'll watch for it on Venmo.";
-    thanks.hidden = false;
-
-    logGift({ kind: "gift", name: who, amount: giftAmount });
-  });
-
-  setGift(50, "init");
+  /* The Venmo link is a plain href in the markup: the profile plus a
+     note. No amount picker — Venmo is where you choose the amount, and
+     the page has nothing useful to add to that. */
 
   /* ---------- Countdown ---------- */
   var target = new Date("2027-06-19T16:00:00").getTime();
@@ -2223,10 +2178,55 @@ html { scroll-behavior: smooth; }
   })();
 
   /* ---------- Add to calendar ----------
-     Built here rather than linked out, so no third party learns who is
-     coming to the wedding. Times are UTC: 3:30pm Mountain is 21:30Z,
-     which every calendar app resolves to the right local time. */
+     A .ics file keeps it private — nobody outside learns who is coming.
+     But Android drops the file into the downloads tray, where as often
+     as not nothing will open it, so the two web calendars are offered
+     beside it and the guest picks.
+
+     Times are UTC: 3:30pm Mountain is 21:30Z, which every calendar app
+     resolves back to the right local time. */
+  var CAL = {
+    start:  "20270619T213000Z",
+    end:    "20270620T030000Z",
+    title:  "Logan & Mary Lou's Wedding",
+    place:  "Surprise Valley Eagle Christian Church, 4601 S Surprise Way, Boise, ID 83716",
+    detail: "Ceremony at 4:00pm, doors from 3:30pm. Reception follows at the church."
+  };
+
+  /* 20270619T213000Z -> 2027-06-19T21:30:00Z, which is what Outlook wants. */
+  function calIso(stamp) {
+    return stamp.slice(0, 4) + "-" + stamp.slice(4, 6) + "-" + stamp.slice(6, 11) +
+           ":" + stamp.slice(11, 13) + ":" + stamp.slice(13);
+  }
+
+  var calDlg = document.getElementById("cal-dialog");
+
+  document.getElementById("cal-google").href =
+    "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    "&text=" + encodeURIComponent(CAL.title) +
+    "&dates=" + CAL.start + "/" + CAL.end +
+    "&location=" + encodeURIComponent(CAL.place) +
+    "&details=" + encodeURIComponent(CAL.detail);
+
+  document.getElementById("cal-outlook").href =
+    "https://outlook.live.com/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent" +
+    "&subject=" + encodeURIComponent(CAL.title) +
+    "&startdt=" + encodeURIComponent(calIso(CAL.start)) +
+    "&enddt=" + encodeURIComponent(calIso(CAL.end)) +
+    "&location=" + encodeURIComponent(CAL.place) +
+    "&body=" + encodeURIComponent(CAL.detail);
+
   document.getElementById("add-cal").addEventListener("click", function () {
+    if (typeof calDlg.showModal === "function") calDlg.showModal();
+    else downloadIcs();
+  });
+  document.getElementById("cal-cancel").addEventListener("click", function () { calDlg.close(); });
+  Array.prototype.forEach.call(calDlg.querySelectorAll(".btn"), function (b) {
+    b.addEventListener("click", function () { calDlg.close(); });
+  });
+  document.getElementById("cal-ics").addEventListener("click", downloadIcs);
+
+  function downloadIcs() {
     var esc = function (s) { return String(s).replace(/([,;\\])/g, "\\$1"); };
     var ics = [
       "BEGIN:VCALENDAR",
@@ -2236,11 +2236,11 @@ html { scroll-behavior: smooth; }
       "BEGIN:VEVENT",
       "UID:logan-marylou-20270619@wedding.invalid",
       "DTSTAMP:20260101T000000Z",
-      "DTSTART:20270619T213000Z",
-      "DTEND:20270620T030000Z",
-      "SUMMARY:" + esc("Logan & Mary Lou's Wedding"),
-      "LOCATION:" + esc("Surprise Valley Eagle Christian Church, 4601 S Surprise Way, Boise, ID 83716"),
-      "DESCRIPTION:" + esc("Ceremony at 4:00pm, doors from 3:30pm. Reception follows at the church."),
+      "DTSTART:" + CAL.start,
+      "DTEND:" + CAL.end,
+      "SUMMARY:" + esc(CAL.title),
+      "LOCATION:" + esc(CAL.place),
+      "DESCRIPTION:" + esc(CAL.detail),
       "END:VEVENT",
       "END:VCALENDAR"
     ].join("\r\n");
@@ -2254,7 +2254,44 @@ html { scroll-behavior: smooth; }
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-  });
+  }
+
+  /* ---------- Photographs ----------
+     The thumbnail is a 700px file; the lightbox swaps in the 1400px one
+     on open, so a guest who never taps a photo never downloads them. */
+  (function () {
+    var lb    = document.getElementById("lightbox");
+    var lbImg = document.getElementById("lb-img");
+    var lbCap = document.getElementById("lb-cap");
+    if (!lb || typeof lb.showModal !== "function") return;
+
+    /* Each thumbnail is a link to the full-size file, so it still works
+       with the script broken or not yet run; the lightbox intercepts. */
+    Array.prototype.forEach.call(document.querySelectorAll(".shot"), function (shot) {
+      shot.addEventListener("click", function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;  /* open in a new tab */
+        e.preventDefault();
+        var thumb = shot.querySelector("img");
+        lbImg.src = shot.getAttribute("href");
+        lbImg.alt = thumb ? thumb.alt : "";
+        lbCap.textContent = shot.dataset.cap || "";
+        lb.showModal();
+      });
+    });
+
+    /* Dropping the src lets go of the full-size image. Done here rather
+       than on the close event, which is queued and can arrive after the
+       next photograph has already been loaded into the same element. */
+    function closeLightbox() {
+      if (lb.open) lb.close();
+      lbImg.removeAttribute("src");
+    }
+    document.getElementById("lb-close").addEventListener("click", closeLightbox);
+    /* Tapping the photograph closes it too — that is what a phone
+       gallery does, and there is nothing else in here to hit. */
+    lb.addEventListener("click", function (e) { if (e.target !== lbCap) closeLightbox(); });
+    lb.addEventListener("cancel", function () { lbImg.removeAttribute("src"); });
+  })();
 
   /* ---------- Reveal on scroll ---------- */
   function revealAll() {

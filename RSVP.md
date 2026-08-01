@@ -60,20 +60,20 @@ A household that has already replied is recognised on their next search:
 site shows the confirmation screen rather than an empty form. "Change
 our reply" opens the form with everything they said already filled in.
 
-### Tab `Gifts` — written by the script
+### Tab `Gifts` — not used any more
 
 Headers in row 1, nothing else:
 
     timestamp | name | amount | confirmed
 
-Written when someone taps "Continue to Venmo". The name box on the site
-is optional, so a blank one is recorded as `Unknown` rather than being
-skipped — Venmo will tell you who it was, and an unlabelled row you can
-reconcile beats no row at all.
+The site used to log an intended amount here when someone tapped through
+to Venmo. That went away with the amount slider: the registry is one
+button now, the guest picks the amount in Venmo, and Venmo's own
+activity feed is the record.
 
-It records what they *said* they were sending — nobody has paid anything at that moment. Check
-Venmo, then put a yes in `confirmed`. Treat the rest as a to-do list, not
-as money.
+The script still accepts a `{kind:"gift"}` POST and will append a row if
+anything ever sends one, so the tab can stay. Nothing writes to it today,
+and you don't need to create it.
 
 ## The Apps Script
 

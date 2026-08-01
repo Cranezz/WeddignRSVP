@@ -1,7 +1,8 @@
 # Registry — how it works
 
 Two ways to give: an Amazon Wedding Registry for physical gifts, and
-Venmo for cash. Both live on the site's Registry section.
+Venmo for cash. Both live on the site's Registry section, one button
+each.
 
 ## Amazon
 
@@ -19,46 +20,30 @@ sign-in prompt, since that is the state every guest will be in.
 
 ## Venmo
 
+One button, straight to the profile:
+
+    https://venmo.com/u/Logan-Crane-23?txn=pay&note=Logan%20%26%20Mary%20Lou's%20wedding
+
+No amount is prefilled. There used to be a slider, a set of preset
+amounts and a name box, all feeding an `amount=` parameter and a log of
+who intended to give what. It came out: Venmo is where you pick the
+amount, the page had nothing to add to that, and the prefill parameters
+were never reliable anyway — Venmo has changed how it honours them, and
+behaviour differs across iOS, Android and desktop.
+
+What is left is the note, which is what shows up in the payment so the
+gift is identifiable months later.
+
+### Reconciling
+
 Venmo has **no public API for personal accounts** — the API is
 business-only, through PayPal/Braintree. A website cannot ask whether a
-payment arrived. So the flow is:
+payment arrived, and the site no longer tries to guess. Venmo already
+shows the sender's name and the note, so the Venmo activity feed is the
+record.
 
-1. Guest picks an amount (slider, chips, or typed).
-2. The page builds a deep link with the amount and a note prefilled.
-3. Guest sends the money in the Venmo app.
-4. Logan checks Venmo and matches it against the log.
-
-Venmo already shows the sender's name, so the name field on the page is
-a convenience for matching, not the only signal.
-
-### The link format
-
-```
-https://venmo.com/u/Logan-Crane-23?txn=pay&amount=100&note=...
-```
-
-Prefill parameters are **best-effort**. Venmo has changed how it honours
-them and behaviour differs across iOS, Android and desktop web. If they
-are dropped the guest still lands on the right profile having just seen
-the amount, so the worst case is typing it again. Worth testing on a real
-phone and adjusting if needed.
-
-### Logging (not built yet)
-
-`giftGo`'s click handler in `index.html` is where a pledge gets recorded.
-It currently only updates the thank-you line. To wire it up, POST to an
-Apps Script `doPost` that appends to a private `Gifts` tab:
-
-| timestamp | amount | guest name | confirmed |
-|-----------|--------|------------|-----------|
-
-`confirmed` is set by hand after checking Venmo. Treat the log as
-*intent*: a guest can tap Continue and never send anything, so the log
-alone is not money.
-
-Note the request has to be sent in a way that survives the page
-navigating away to Venmo — `navigator.sendBeacon` rather than a plain
-`fetch`, or fire it slightly before the hand-off.
+The Apps Script still understands a `{kind:"gift"}` POST and will append
+to a `Gifts` tab if one ever sends it. Nothing does, today.
 
 ### Fees
 
