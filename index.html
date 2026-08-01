@@ -25,6 +25,7 @@
   --ink:          #33261E;
   --ink-soft:     #6E5C4E;
   --brass:        #A8875A;
+  --brass-deep:   #79582D;   /* small text on cream — the bright brass fails contrast */
   --brass-pale:   #C9AE83;
 
   --f-script:  'Snell Roundhand', 'Apple Chancery', 'Segoe Script', 'Brush Script MT', Georgia, serif;
@@ -118,15 +119,17 @@ body::before {
     0 1px 2px rgba(58,16,24,.10);
 }
 
-/* Paper grain, multiplied over the field so it darkens rather than
-   fogs. Pointer-events off so it never intercepts a tap. */
+/* Crumple first, then a fine grain over it: soft creases catching the
+   light, the way a card that has been handled actually looks. */
 .field::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%3E%3Cfilter%20id%3D%22g%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.85%22%20numOctaves%3D%224%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20filter%3D%22url(%23g)%22%20opacity%3D%220.5%22%2F%3E%3C%2Fsvg%3E");
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%3E%3Cfilter%20id%3D%22g%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.85%22%20numOctaves%3D%224%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20filter%3D%22url(%23g)%22%20opacity%3D%220.5%22%2F%3E%3C%2Fsvg%3E") 0 0 / 150px 150px,
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22320%22%20height%3D%22320%22%3E%3Cfilter%20id%3D%22c%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.013%22%20numOctaves%3D%224%22%20seed%3D%229%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeDiffuseLighting%20lighting-color%3D%22%23ffffff%22%20surfaceScale%3D%222.4%22%3E%3CfeDistantLight%20azimuth%3D%22228%22%20elevation%3D%2262%22%2F%3E%3C%2FfeDiffuseLighting%3E%3C%2Ffilter%3E%3Crect%20width%3D%22320%22%20height%3D%22320%22%20filter%3D%22url(%23c)%22%2F%3E%3C%2Fsvg%3E") center / 340px 340px;
   mix-blend-mode: multiply;
-  opacity: .05;
+  opacity: .17;
   pointer-events: none;
 }
 
@@ -182,6 +185,8 @@ h2.sec-title {
    the page box and can drag the layout sideways. */
 .skip {
   position: absolute;
+  background: var(--cream);
+  color: var(--ink);
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -245,15 +250,17 @@ h2.sec-title {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: .1rem .95rem;
+  gap: .1rem .5rem;
   list-style: none;
   margin: 0 auto;
   padding: .55rem .7rem;
   width: min(100%, 56rem);
 }
 .topbar a {
-  display: block;
-  padding: .28rem .1rem;
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  padding: .3rem .45rem;
   font-family: var(--f-caps);
   text-transform: uppercase;
   letter-spacing: .13em;
@@ -269,7 +276,7 @@ h2.sec-title {
 
 @media (min-width: 30rem) {
   .topbar a { font-size: .66rem; letter-spacing: .16em; }
-  .topbar ul { gap: .1rem 1.4rem; padding-block: .7rem; }
+  .topbar ul { gap: .1rem 1rem; padding-block: .7rem; }
 }
 
 /* ============================================================
@@ -339,6 +346,15 @@ h2.sec-title {
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
+.married {
+  display: block;
+  font-family: var(--f-script);
+  font-style: italic;
+  font-size: 2.1rem;
+  color: var(--brass-deep);
+  margin: 1.6rem 0 1.2rem;
+}
+
 .cd-lab {
   font-family: var(--f-caps);
   text-transform: uppercase;
@@ -468,14 +484,25 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 3px;
-  background: rgba(168,135,90,.35);
-  margin: .8rem 0 .3rem;
+  height: 34px;                 /* the grab area, not the track */
+  background: #0000;
+  margin: .35rem 0 0;
   cursor: pointer;
+}
+.slider::-webkit-slider-runnable-track {
+  height: 3px;
+  background: rgba(168,135,90,.4);
+  border-radius: 2px;
+}
+.slider::-moz-range-track {
+  height: 3px;
+  background: rgba(168,135,90,.4);
+  border-radius: 2px;
 }
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
+  margin-top: -10.5px;          /* centre the thumb on a 3px track */
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -511,6 +538,7 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   font-family: var(--f-caps);
   font-size: .72rem;
   letter-spacing: .04em;
+  min-height: 36px;
   background: var(--lace);
   border: 1px solid rgba(168,135,90,.5);
   color: var(--ink);
@@ -533,6 +561,54 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   color: var(--ink);
   margin: 1rem 0 0;
 }
+
+/* ---- Ornamented buttons ----
+   A brass rule set inside the edge and a lozenge either side of the
+   label — engraved plate rather than web button. Reserved for the two
+   registry calls, so they stay the most deliberate thing on the page. */
+
+.btn-orn {
+  position: relative;
+  padding-block: 1.05rem;
+  letter-spacing: .2em;
+  overflow: hidden;
+}
+.btn-orn::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(201,174,131,.5);
+  pointer-events: none;
+  transition: border-color .2s ease, inset .2s ease;
+}
+.btn-orn:hover::before,
+.btn-orn:focus-visible::before { border-color: rgba(201,174,131,.9); }
+
+.btn-orn span { position: relative; display: inline-block; }
+.btn-orn span::before,
+.btn-orn span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  rotate: 45deg;
+  translate: 0 -50%;
+  background: var(--brass);
+  opacity: .85;
+}
+.btn-orn span::before { left: -1.15rem; }
+.btn-orn span::after { right: -1.15rem; }
+
+.btn-orn.ghost {
+  background-color: rgba(250,244,233,.55);
+  border-color: rgba(168,135,90,.75);
+  box-shadow: 0 1px 3px rgba(58,16,24,.16);
+}
+.btn-orn.ghost:hover,
+.btn-orn.ghost:focus-visible { background-color: var(--oxblood); color: var(--lace); }
+.btn-orn.ghost:hover span::before,
+.btn-orn.ghost:hover span::after { background: var(--brass-pale); }
 
 /* ---- Per-person dietary ---- */
 
@@ -586,7 +662,7 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   font-size: .74rem;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--brass);
+  color: var(--brass-deep);
   font-variant-numeric: tabular-nums;
 }
 .slot b {
@@ -611,7 +687,7 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   text-transform: uppercase;
   letter-spacing: .2em;
   font-size: .68rem;
-  color: var(--brass);
+  color: var(--brass-deep);
   margin: 0 0 .3rem;
 }
 
@@ -685,7 +761,8 @@ dialog.modal[open] { animation: modal-in .22s ease both; }
   background: #0000;
   border: 1px solid rgba(168,135,90,.5);
   color: var(--oxblood);
-  padding: .3rem .6rem;
+  min-height: 34px;
+  padding: .4rem .7rem;
   margin: 0 .3rem .3rem 0;
   cursor: pointer;
   border-radius: 2px;
@@ -790,11 +867,15 @@ footer {
 footer p { margin: .35rem 0; font-size: .85rem; }
 footer a { color: var(--lace); }
 
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
-.reveal.in { opacity: 1; transform: none; }
+/* Sections are visible by default. The hidden state is only applied
+   once JS has confirmed it can undo it — otherwise a failed observer,
+   a blocked script or an old browser leaves the page blank. */
+.reveal { transition: opacity .7s ease, transform .7s ease; }
+.js-reveal .reveal { opacity: 0; transform: translateY(18px); }
+.js-reveal .reveal.in { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal, .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
   * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   html { scroll-behavior: auto; }
 }
@@ -804,106 +885,16 @@ html { scroll-behavior: smooth; }
 .section, .hero { scroll-margin-top: calc(var(--bar, 0px) + var(--nav, 0px)); }
 
 /* ============================================================
-   BANDS
+   SURFACES
 
-   Full-bleed grounds stacked down the page, each with a centred
-   column, rather than a stack of floating cards. The invitation keeps
-   its lace frame; everything after it is a band.
+   A phone gets a stack of invitation cards — lace, die-cut edge, paper
+   — because at that width the card is the whole screen and reads as an
+   object in your hand. A desktop gets full-bleed grounds, because the
+   same card floating in a wide window reads as a small rectangle
+   marooned in space. Same content, two physical metaphors.
    ============================================================ */
 
-.section {
-  position: relative;
-  padding-block: clamp(3rem, 7vw, 5.5rem);
-  background: var(--cream);
-  isolation: isolate;
-}
-
-/* Paper, lightly. Multiplied so it darkens the sheet rather than
-   fogging it, and never over the text. */
-.section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%3E%3Cfilter%20id%3D%22g%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.85%22%20numOctaves%3D%224%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20filter%3D%22url(%23g)%22%20opacity%3D%220.5%22%2F%3E%3C%2Fsvg%3E");
-  mix-blend-mode: multiply;
-  opacity: .07;
-  pointer-events: none;
-}
-
-/* Two bands break the run of cream. Text tokens flip with them. */
-.section.band-red {
-  background:
-    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22112%22%20height%3D%22156%22%20viewBox%3D%220%200%20112%20156%22%3E%3Cg%20transform%3D%22translate(4%2C6)%22%3E%3Cpath%20d%3D%22M22%2C72%20C22%2C56%2022%2C40%2022%2C24%22%20stroke%3D%22%235C1A26%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M22%2C60%20C15%2C58.5%2011%2C54%2010%2C47.5%20C16.5%2C48.5%2021%2C53.5%2022%2C60Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C50%20C29%2C48.5%2033%2C44%2034%2C37.5%20C27.5%2C38.5%2023%2C43.5%2022%2C50Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C40%20C15%2C38.5%2011%2C34%2010%2C27.5%20C16.5%2C28.5%2021%2C33.5%2022%2C40Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2219%22%20r%3D%223.4%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2217.4%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2226.6%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(60%2C84)%20rotate(180%2022%2036)%22%3E%3Cpath%20d%3D%22M22%2C72%20C22%2C56%2022%2C40%2022%2C24%22%20stroke%3D%22%235C1A26%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M22%2C60%20C15%2C58.5%2011%2C54%2010%2C47.5%20C16.5%2C48.5%2021%2C53.5%2022%2C60Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C50%20C29%2C48.5%2033%2C44%2034%2C37.5%20C27.5%2C38.5%2023%2C43.5%2022%2C50Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C40%20C15%2C38.5%2011%2C34%2010%2C27.5%20C16.5%2C28.5%2021%2C33.5%2022%2C40Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2219%22%20r%3D%223.4%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2217.4%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2226.6%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2234%22%20r%3D%221.4%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22112%22%20r%3D%221.4%22%20fill%3D%22%236E2430%22%2F%3E%3C%2Fsvg%3E") repeat,
-    linear-gradient(var(--oxblood-deep), var(--oxblood-dark));
-  color: var(--cream);
-}
-.section.band-red::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: auto;
-  height: 26px;
-  z-index: 0;
-  opacity: 1;
-  mix-blend-mode: normal;
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%2226%22%20viewBox%3D%220%200%20120%2026%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22n%22%20width%3D%223.8%22%20height%3D%226.612%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Ccircle%20cx%3D%221.9%22%20cy%3D%221.653%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%224.959%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%223.8%22%20cy%3D%224.959%22%20r%3D%221.05%22%2F%3E%3C%2Fpattern%3E%3Cmask%20id%3D%22m%22%3E%3Crect%20width%3D%22120%22%20height%3D%2226%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%222%22%20width%3D%22117%22%20height%3D%2217%22%20fill%3D%22url(%23n)%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2245%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2275%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%22105%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M0%2C0%20L120%2C0%20L120%2C18%20Q112.5%2C26%20105%2C18%20Q97.5%2C10%2090%2C18%20Q82.5%2C26%2075%2C18%20Q67.5%2C10%2060%2C18%20Q52.5%2C26%2045%2C18%20Q37.5%2C10%2030%2C18%20Q22.5%2C26%2015%2C18%20Q7.5%2C10%200%2C18%20Z%22%20fill%3D%22%23FAF4E9%22%20mask%3D%22url(%23m)%22%2F%3E%3C%2Fsvg%3E") repeat-x bottom center;
-  transform: rotate(180deg);
-  pointer-events: none;
-}
-
-.section.band-red .sec-title,
-.section.band-red .story-lead,
-.section.band-red .slot b,
-.section.band-red .stack p,
-.section.band-red .faq summary { color: var(--cream); }
-
-.section.band-red .eyebrow,
-.section.band-red .lede,
-.section.band-red .sub,
-.section.band-red .slot span,
-.section.band-red .faq details p { color: var(--brass-pale); }
-
-.section.band-red .detail-h,
-.section.band-red .slot time,
-.section.band-red .rule { color: var(--brass); }
-
-.section.band-red .slot,
-.section.band-red .faq details { border-color: rgba(201,174,131,.32); }
-.section.band-red .faq details:last-of-type { border-bottom-color: rgba(201,174,131,.32); }
-.section.band-red .faq summary::after { color: var(--brass-pale); }
-.section.band-red a { color: var(--lace); }
-
-/* A lace seam where a band changes ground. */
-.section.band-red::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 26px;
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%2226%22%20viewBox%3D%220%200%20120%2026%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22n%22%20width%3D%223.8%22%20height%3D%226.612%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Ccircle%20cx%3D%221.9%22%20cy%3D%221.653%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%224.959%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%223.8%22%20cy%3D%224.959%22%20r%3D%221.05%22%2F%3E%3C%2Fpattern%3E%3Cmask%20id%3D%22m%22%3E%3Crect%20width%3D%22120%22%20height%3D%2226%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%221.5%22%20y%3D%222%22%20width%3D%22117%22%20height%3D%2217%22%20fill%3D%22url(%23n)%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2245%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%2275%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%22105%22%20cy%3D%2210%22%20r%3D%221.3%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M0%2C0%20L120%2C0%20L120%2C18%20Q112.5%2C26%20105%2C18%20Q97.5%2C10%2090%2C18%20Q82.5%2C26%2075%2C18%20Q67.5%2C10%2060%2C18%20Q52.5%2C26%2045%2C18%20Q37.5%2C10%2030%2C18%20Q22.5%2C26%2015%2C18%20Q7.5%2C10%200%2C18%20Z%22%20fill%3D%22%23FAF4E9%22%20mask%3D%22url(%23m)%22%2F%3E%3C%2Fsvg%3E") repeat-x top center;
-  pointer-events: none;
-}
-
-/* Inside a band the old card chrome stands down — the band is the
-   surface now. Only the invitation keeps its die-cut and lace. */
-.section .card {
-  background: none;
-  padding: 0;
-  -webkit-mask: none;
-  mask: none;
-  filter: none;
-}
-.section .panel { border: 0; }
-.section .field {
-  background: none;
-  box-shadow: none;
-  padding: 0;
-}
-.section .field::after { display: none; }
+.section { position: relative; padding-block: clamp(2.25rem, 7vw, 3.25rem); }
 
 /* ============================================================
    HERO
@@ -933,13 +924,91 @@ html { scroll-behavior: smooth; }
   .hero { min-height: calc(100svh - var(--bar, 0px) - var(--nav, 0px)); }
   .hero-card { width: min(100%, 34rem); }
   .names { font-size: clamp(3rem, 5vw, 4.4rem); }
-
   .wrap { width: min(100% - 4rem, 44rem); }
-  .section { padding-block: clamp(4rem, 6vw, 7rem); }
 
-  .schedule { max-width: 34rem; margin-inline: auto; }
-  .stack, .faq, .story { max-width: 34rem; margin-inline: auto; }
-  .items, .funds { max-width: 32rem; margin-inline: auto; }
+  /* Card chrome stands down; the band becomes the surface. */
+  .section {
+    padding-block: clamp(4rem, 6vw, 7rem);
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22112%22%20height%3D%22156%22%20viewBox%3D%220%200%20112%20156%22%3E%3Cg%20transform%3D%22translate(4%2C6)%22%3E%3Cpath%20d%3D%22M22%2C72%20C22%2C56%2022%2C40%2022%2C24%22%20stroke%3D%22%23EBDDC6%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M22%2C60%20C15%2C58.5%2011%2C54%2010%2C47.5%20C16.5%2C48.5%2021%2C53.5%2022%2C60Z%22%20fill%3D%22%23EBDDC6%22%2F%3E%3Cpath%20d%3D%22M22%2C50%20C29%2C48.5%2033%2C44%2034%2C37.5%20C27.5%2C38.5%2023%2C43.5%2022%2C50Z%22%20fill%3D%22%23EBDDC6%22%2F%3E%3Cpath%20d%3D%22M22%2C40%20C15%2C38.5%2011%2C34%2010%2C27.5%20C16.5%2C28.5%2021%2C33.5%2022%2C40Z%22%20fill%3D%22%23EBDDC6%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2219%22%20r%3D%223.4%22%20fill%3D%22%23EFE4D1%22%2F%3E%3Ccircle%20cx%3D%2217.4%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%23EFE4D1%22%2F%3E%3Ccircle%20cx%3D%2226.6%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%23EFE4D1%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(60%2C84)%20rotate(180%2022%2036)%22%3E%3Cpath%20d%3D%22M22%2C72%20C22%2C56%2022%2C40%2022%2C24%22%20stroke%3D%22%23EBDDC6%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M22%2C60%20C15%2C58.5%2011%2C54%2010%2C47.5%20C16.5%2C48.5%2021%2C53.5%2022%2C60Z%22%20fill%3D%22%23EBDDC6%22%2F%3E%3Cpath%20d%3D%22M22%2C50%20C29%2C48.5%2033%2C44%2034%2C37.5%20C27.5%2C38.5%2023%2C43.5%2022%2C50Z%22%20fill%3D%22%23EBDDC6%22%2F%3E%3Cpath%20d%3D%22M22%2C40%20C15%2C38.5%2011%2C34%2010%2C27.5%20C16.5%2C28.5%2021%2C33.5%2022%2C40Z%22%20fill%3D%22%23EBDDC6%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2219%22%20r%3D%223.4%22%20fill%3D%22%23EFE4D1%22%2F%3E%3Ccircle%20cx%3D%2217.4%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%23EFE4D1%22%2F%3E%3Ccircle%20cx%3D%2226.6%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%23EFE4D1%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2234%22%20r%3D%221.4%22%20fill%3D%22%23EFE4D1%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22112%22%20r%3D%221.4%22%20fill%3D%22%23EFE4D1%22%2F%3E%3C%2Fsvg%3E") repeat, var(--cream);
+    isolation: isolate;
+  }
+  .section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22160%22%20height%3D%22160%22%3E%3Cfilter%20id%3D%22g%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.85%22%20numOctaves%3D%224%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22160%22%20height%3D%22160%22%20filter%3D%22url(%23g)%22%20opacity%3D%220.5%22%2F%3E%3C%2Fsvg%3E") 0 0 / 150px 150px,
+      url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22320%22%20height%3D%22320%22%3E%3Cfilter%20id%3D%22c%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.013%22%20numOctaves%3D%224%22%20seed%3D%229%22%20stitchTiles%3D%22stitch%22%2F%3E%3CfeDiffuseLighting%20lighting-color%3D%22%23ffffff%22%20surfaceScale%3D%222.4%22%3E%3CfeDistantLight%20azimuth%3D%22228%22%20elevation%3D%2262%22%2F%3E%3C%2FfeDiffuseLighting%3E%3C%2Ffilter%3E%3Crect%20width%3D%22320%22%20height%3D%22320%22%20filter%3D%22url(%23c)%22%2F%3E%3C%2Fsvg%3E") center / 440px 440px;
+    mix-blend-mode: multiply;
+    opacity: .13;
+    pointer-events: none;
+  }
+
+  /* Each band is a separate sheet laid down. A shadow under its top
+     edge and a half-tone shift stop four cream sections in a row from
+     reading as one continuous slab. */
+  .section + .section {
+    box-shadow: inset 0 11px 16px -14px rgba(58,16,24,.55);
+    border-top: 1px solid rgba(168,135,90,.32);
+  }
+  .section:nth-of-type(even) { background-color: #EFE2CB; }
+
+  .section .card { background: none; padding: 0; -webkit-mask: none; mask: none; filter: none; }
+  .section .panel { border: 0; }
+  .section .field { background: none; box-shadow: none; padding: 0; }
+  .section .field::after { display: none; }
+
+  .section.band-red {
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22112%22%20height%3D%22156%22%20viewBox%3D%220%200%20112%20156%22%3E%3Cg%20transform%3D%22translate(4%2C6)%22%3E%3Cpath%20d%3D%22M22%2C72%20C22%2C56%2022%2C40%2022%2C24%22%20stroke%3D%22%235C1A26%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M22%2C60%20C15%2C58.5%2011%2C54%2010%2C47.5%20C16.5%2C48.5%2021%2C53.5%2022%2C60Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C50%20C29%2C48.5%2033%2C44%2034%2C37.5%20C27.5%2C38.5%2023%2C43.5%2022%2C50Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C40%20C15%2C38.5%2011%2C34%2010%2C27.5%20C16.5%2C28.5%2021%2C33.5%2022%2C40Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2219%22%20r%3D%223.4%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2217.4%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2226.6%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(60%2C84)%20rotate(180%2022%2036)%22%3E%3Cpath%20d%3D%22M22%2C72%20C22%2C56%2022%2C40%2022%2C24%22%20stroke%3D%22%235C1A26%22%20stroke-width%3D%22.8%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M22%2C60%20C15%2C58.5%2011%2C54%2010%2C47.5%20C16.5%2C48.5%2021%2C53.5%2022%2C60Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C50%20C29%2C48.5%2033%2C44%2034%2C37.5%20C27.5%2C38.5%2023%2C43.5%2022%2C50Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Cpath%20d%3D%22M22%2C40%20C15%2C38.5%2011%2C34%2010%2C27.5%20C16.5%2C28.5%2021%2C33.5%2022%2C40Z%22%20fill%3D%22%235C1A26%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2219%22%20r%3D%223.4%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2217.4%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2226.6%22%20cy%3D%2221.6%22%20r%3D%221.9%22%20fill%3D%22%236E2430%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2286%22%20cy%3D%2234%22%20r%3D%221.4%22%20fill%3D%22%236E2430%22%2F%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%22112%22%20r%3D%221.4%22%20fill%3D%22%236E2430%22%2F%3E%3C%2Fsvg%3E") repeat,
+                linear-gradient(var(--oxblood-deep), var(--oxblood-dark));
+    color: var(--cream);
+  }
+  .section.band-red::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 30px;
+    z-index: 0;
+    opacity: 1;
+    mix-blend-mode: normal;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%2230%22%20viewBox%3D%220%200%20120%2030%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22n%22%20width%3D%223.9%22%20height%3D%226.786%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Ccircle%20cx%3D%221.95%22%20cy%3D%221.696%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%225.089%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%223.9%22%20cy%3D%225.089%22%20r%3D%221.05%22%2F%3E%3C%2Fpattern%3E%3Cmask%20id%3D%22h%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22120%22%20height%3D%2230%22%3E%3Crect%20width%3D%22120%22%20height%3D%2230%22%20fill%3D%22%23fff%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Crect%20x%3D%221.6%22%20y%3D%223.2%22%20width%3D%22116.8%22%20height%3D%2223.6%22%20fill%3D%22url(%23n)%22%2F%3E%3Ccircle%20cx%3D%2215.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%2219.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%2019.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2217.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%2017.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2212.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%2012.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2210.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%2010.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2212.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%2012.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2217.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%2017.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%2245.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%2249.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%2049.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2247.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%2047.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2242.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%2042.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2240.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%2040.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2242.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%2042.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2247.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%2047.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%2275.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%2279.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%2079.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2277.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%2077.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2272.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%2072.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2270.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%2070.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2272.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%2072.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2277.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%2077.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%22105.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%22109.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%20109.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%22107.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%20107.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%22102.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%20102.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%22100.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%20100.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%22102.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%20102.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%22107.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%20107.20%2012.19)%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20fill%3D%22%23FAF4E9%22%20mask%3D%22url(%23h)%22%3E%3Cpath%20d%3D%22M0%2C8%20Q7.50%2C-2.56%2015.00%2C8%20Q22.50%2C-2.56%2030.00%2C8%20Q37.50%2C-2.56%2045.00%2C8%20Q52.50%2C-2.56%2060.00%2C8%20Q67.50%2C-2.56%2075.00%2C8%20Q82.50%2C-2.56%2090.00%2C8%20Q97.50%2C-2.56%20105.00%2C8%20Q112.50%2C-2.56%20120.00%2C8%20L120%2C30%20L0%2C30%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat-x bottom center;
+    transform: rotate(180deg);
+    pointer-events: none;
+  }
+  .section.band-red::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 30px;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22120%22%20height%3D%2230%22%20viewBox%3D%220%200%20120%2030%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22n%22%20width%3D%223.9%22%20height%3D%226.786%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Ccircle%20cx%3D%221.95%22%20cy%3D%221.696%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%225.089%22%20r%3D%221.05%22%2F%3E%3Ccircle%20cx%3D%223.9%22%20cy%3D%225.089%22%20r%3D%221.05%22%2F%3E%3C%2Fpattern%3E%3Cmask%20id%3D%22h%22%20maskUnits%3D%22userSpaceOnUse%22%20x%3D%220%22%20y%3D%220%22%20width%3D%22120%22%20height%3D%2230%22%3E%3Crect%20width%3D%22120%22%20height%3D%2230%22%20fill%3D%22%23fff%22%2F%3E%3Cg%20fill%3D%22%23000%22%3E%3Crect%20x%3D%221.6%22%20y%3D%223.2%22%20width%3D%22116.8%22%20height%3D%2223.6%22%20fill%3D%22url(%23n)%22%2F%3E%3Ccircle%20cx%3D%2215.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%2219.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%2019.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2217.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%2017.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2212.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%2012.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2210.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%2010.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2212.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%2012.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2217.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%2017.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%2245.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%2249.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%2049.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2247.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%2047.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2242.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%2042.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2240.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%2040.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2242.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%2042.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2247.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%2047.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%2275.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%2279.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%2079.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2277.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%2077.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2272.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%2072.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%2270.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%2070.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%2272.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%2072.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%2277.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%2077.20%2012.19)%22%2F%3E%3Ccircle%20cx%3D%22105.00%22%20cy%3D%2216.00%22%20r%3D%221.25%22%2F%3E%3Cellipse%20cx%3D%22109.40%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(90.0%20109.40%2016.00)%22%2F%3E%3Cellipse%20cx%3D%22107.20%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(150.0%20107.20%2019.81)%22%2F%3E%3Cellipse%20cx%3D%22102.80%22%20cy%3D%2219.81%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(210.0%20102.80%2019.81)%22%2F%3E%3Cellipse%20cx%3D%22100.60%22%20cy%3D%2216.00%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(270.0%20100.60%2016.00)%22%2F%3E%3Cellipse%20cx%3D%22102.80%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(330.0%20102.80%2012.19)%22%2F%3E%3Cellipse%20cx%3D%22107.20%22%20cy%3D%2212.19%22%20rx%3D%221.45%22%20ry%3D%222.4%22%20transform%3D%22rotate(390.0%20107.20%2012.19)%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20fill%3D%22%23FAF4E9%22%20mask%3D%22url(%23h)%22%3E%3Cpath%20d%3D%22M0%2C8%20Q7.50%2C-2.56%2015.00%2C8%20Q22.50%2C-2.56%2030.00%2C8%20Q37.50%2C-2.56%2045.00%2C8%20Q52.50%2C-2.56%2060.00%2C8%20Q67.50%2C-2.56%2075.00%2C8%20Q82.50%2C-2.56%2090.00%2C8%20Q97.50%2C-2.56%20105.00%2C8%20Q112.50%2C-2.56%20120.00%2C8%20L120%2C30%20L0%2C30%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat-x top center;
+    pointer-events: none;
+  }
+
+  .section.band-red .sec-title,
+  .section.band-red .story-lead,
+  .section.band-red .slot b,
+  .section.band-red .stack p,
+  .section.band-red .faq summary { color: var(--cream); }
+
+  .section.band-red .eyebrow,
+  .section.band-red .lede,
+  .section.band-red .sub,
+  .section.band-red .slot span,
+  .section.band-red .faq details p { color: var(--brass-pale); }
+
+  .section.band-red .detail-h,
+  .section.band-red .slot time { color: var(--brass-pale); }
+  .section.band-red .rule { color: var(--brass); }
+
+  .section.band-red .slot,
+  .section.band-red .faq details,
+  .section.band-red .faq details:last-of-type { border-color: rgba(201,174,131,.32); }
+  .section.band-red .faq summary::after { color: var(--brass-pale); }
+  .section.band-red a { color: var(--lace); }
+
+  .schedule, .stack, .faq, .story { max-width: 34rem; margin-inline: auto; }
+  .items, .funds, .reg-half { max-width: 32rem; margin-inline: auto; }
 }
 
 </style>
@@ -947,7 +1016,7 @@ html { scroll-behavior: smooth; }
 <body>
 
 <div class="preview-bar">
-  In progress &middot; the date is provisional and the times below aren't final
+  In progress &middot; details may still change
 </div>
 
 
@@ -977,7 +1046,7 @@ html { scroll-behavior: smooth; }
         <p class="hero-date">Saturday &middot; June 19, 2027</p>
         <p class="hero-place">Surprise Valley Eagle Christian Church &middot; Boise, Idaho</p>
 
-        <div class="countdown" aria-label="Time remaining until the wedding">
+        <div class="countdown" id="countdown" aria-label="Time remaining until the wedding">
           <div class="cd-cell"><div class="cd-num" id="cd-d">&mdash;</div><div class="cd-lab">Days</div></div>
           <div class="cd-cell"><div class="cd-num" id="cd-h">&mdash;</div><div class="cd-lab">Hours</div></div>
           <div class="cd-cell"><div class="cd-num" id="cd-m">&mdash;</div><div class="cd-lab">Minutes</div></div>
@@ -1199,9 +1268,9 @@ html { scroll-behavior: smooth; }
         <div class="reg-half">
           <p class="detail-h">Something for the house</p>
           <p class="reg-blurb">A list of things we'd find useful. It ships straight to us, and comes off the list once it's bought.</p>
-          <a class="btn ghost" id="amazon-link"
+          <a class="btn btn-orn ghost" id="amazon-link"
              href="https://www.amazon.com/wedding/guest-view/2C62WFP0WYN3U"
-             target="_blank" rel="noopener">Open our Amazon registry</a>
+             target="_blank" rel="noopener"><span>Open our Amazon registry</span></a>
         </div>
 
         <div class="reg-half">
@@ -1228,8 +1297,8 @@ html { scroll-behavior: smooth; }
             </div>
           </div>
 
-          <a class="btn" id="gift-go" href="https://venmo.com/u/Logan-Crane-23"
-             target="_blank" rel="noopener">Continue to Venmo</a>
+          <a class="btn btn-orn" id="gift-go" href="https://venmo.com/u/Logan-Crane-23"
+             target="_blank" rel="noopener"><span>Continue to Venmo</span></a>
 
           <p class="sub" style="margin-top:.7rem;">Venmo opens with the amount filled in.</p>
           <div class="gift-thanks" id="gift-thanks" hidden></div>
@@ -1453,9 +1522,23 @@ html { scroll-behavior: smooth; }
     m: document.getElementById("cd-m"), s: document.getElementById("cd-s")
   };
   function pad(n) { return n < 10 ? "0" + n : String(n); }
+  var ticker;
   function tick() {
     var left = target - Date.now();
-    if (left < 0) left = 0;
+
+    /* The site outlives the wedding. A row of zeros counting nothing
+       would look broken, so it retires itself. */
+    if (left <= 0) {
+      var box = document.getElementById("countdown");
+      if (box) {
+        box.innerHTML = "";
+        box.className = "married";
+        box.textContent = "Married";
+      }
+      if (ticker) clearInterval(ticker);
+      return;
+    }
+
     var sec = Math.floor(left / 1000);
     els.d.textContent = Math.floor(sec / 86400);
     els.h.textContent = pad(Math.floor(sec / 3600) % 24);
@@ -1463,7 +1546,7 @@ html { scroll-behavior: smooth; }
     els.s.textContent = pad(sec % 60);
   }
   tick();
-  setInterval(tick, 1000);
+  ticker = setInterval(tick, 1000);
 
   /* ================================================================
      GUEST LOOKUP AND RSVP
@@ -2222,15 +2305,29 @@ html { scroll-behavior: smooth; }
   });
 
   /* ---------- Reveal on scroll ---------- */
-  if ("IntersectionObserver" in window) {
+  function revealAll() {
+    document.documentElement.classList.remove("js-reveal");
+    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (el) {
+      el.classList.add("in");
+    });
+  }
+
+  if ("IntersectionObserver" in window &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    /* Only now is it safe to hide anything. */
+    document.documentElement.classList.add("js-reveal");
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
       });
     }, { rootMargin: "0px 0px -12% 0px" });
     Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (el) { io.observe(el); });
+
+    /* Belt and braces: if anything is somehow still hidden shortly
+       after load, drop the whole mechanism and show the page. */
+    setTimeout(revealAll, 2000);
   } else {
-    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (el) { el.classList.add("in"); });
+    revealAll();
   }
 })();
 </script>
