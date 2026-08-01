@@ -41,7 +41,11 @@ allow two. Results come back sorted by how close the match was.
 
 Put these headers in row 1 and leave the rest empty:
 
-    timestamp | party_id | household | name | type | attending | meal | dietary | email
+    timestamp | party_id | household | name | type | attending | meal | dietary | contact | ceremony | reception
+
+`ceremony` and `reception` are appended at the end deliberately: adding
+them there leaves every existing column where it was, so nothing already
+in the sheet shifts.
 
 One row per person, with that person's own `dietary` note — the kitchen
 plates per head, so "no nuts for one of us" is no use without knowing
@@ -79,7 +83,7 @@ paste this.
 ```js
 // Bumped whenever this file changes. doGet reports it, so you can tell
 // at a glance whether the deployment is running the current code.
-const VERSION = 5;
+const VERSION = 6;
 
 const GUESTS  = 'Guests';
 const REPLIES = 'Replies';
@@ -156,14 +160,15 @@ function readGuests() {
 // The script writes these rows itself, so if a header has been renamed
 // the known write order is a better answer than giving up.
 const REPLY_COLS = {
-  timestamp: 0, party_id: 1, household: 2, name: 3,
-  type: 4, attending: 5, meal: 6, dietary: 7, email: 8
+  timestamp: 0, party_id: 1, household: 2, name: 3, type: 4,
+  attending: 5, meal: 6, dietary: 7, contact: 8, ceremony: 9, reception: 10
 };
 const REPLY_ALIASES = {
   party_id: ['party_id', 'partyid', 'party'],
   household: ['household', 'family'],
   attending: ['attending', 'coming', 'rsvp'],
-  dietary: ['dietary', 'diet', 'allergies']
+  dietary: ['dietary', 'diet', 'allergies'],
+  contact: ['contact', 'email', 'phone', 'mobile']
 };
 
 function replyCol(map, key) {
@@ -188,13 +193,15 @@ function readReplies() {
     const when = (raw instanceof Date) ? raw.toISOString() : String(raw || '');
     if (when > byParty[id].when) byParty[id].when = when;
 
-    const em = cell(r, c('email'));
+    const em = cell(r, c('contact'));
     if (em) byParty[id].email = em;
 
     byParty[id].people.push({
       name: cell(r, c('name')),
       type: cell(r, c('type')),
       attending: yes(cell(r, c('attending'))),
+      ceremony: yes(cell(r, c('ceremony'))),
+      reception: yes(cell(r, c('reception'))),
       meal: cell(r, c('meal')),
       dietary: cell(r, c('dietary'))
     });
@@ -311,7 +318,8 @@ function saveRsvp(data) {
     sh.appendRow([
       new Date(), data.partyId, data.household, p.name, p.type,
       p.attending ? 'yes' : 'no', p.meal || '',
-      p.dietary || '', data.email || ''
+      p.dietary || '', data.contact || data.email || '',
+      p.ceremony ? 'yes' : 'no', p.reception ? 'yes' : 'no'
     ]);
   });
 
@@ -322,12 +330,20 @@ function saveRsvp(data) {
       data.household + (hadPrior ? ' changed their answer' : ' replied') +
       ' \u2014 ' + going + ' attending.\n\n' +
       (data.people || []).map(p =>
-        '  ' + p.name + ' (' + p.type + '): ' + (p.attending ? 'yes' : 'no') +
+        '  ' + p.name + ' (' + p.type + '): ' + partsOf(p) +
         (p.dietary ? '  \u2014 ' + p.dietary : '')).join('\n') +
-      (data.email ? '\n\nContact: ' + data.email : ''));
+      ((data.contact || data.email) ? '\n\nContact: ' + (data.contact || data.email) : ''));
   }
 
   return json({ ok: true, updated: hadPrior });
+}
+
+function partsOf(p) {
+  if (!p.attending) return 'not coming';
+  if (p.ceremony && p.reception) return 'ceremony + reception';
+  if (p.ceremony) return 'ceremony only';
+  if (p.reception) return 'reception only';
+  return 'coming';
 }
 
 function saveGift(data) {
@@ -353,6 +369,76 @@ function saveGift(data) {
 `LockService` is not optional. Two households replying in the same second
 will otherwise interleave their row deletions and corrupt each other's
 answers.
+
+## Reminders
+
+Add this to the same script. It emails everyone who replied, once a month
+out and once a week out, and never twice.
+
+```js
+const WEDDING = new Date('2027-06-19T16:00:00-06:00');   // Boise time
+
+// Run daily. It works out for itself whether today is a reminder day.
+function sendReminders() {
+  const days = Math.round((WEDDING - new Date()) / 86400000);
+  const stage = days === 30 ? '1-month' : days === 7 ? '1-week' : '';
+  if (!stage) return;
+
+  const sent = PropertiesService.getScriptProperties();
+  if (sent.getProperty('reminder_' + stage)) return;   // already gone out
+
+  const replies = readReplies();
+  let count = 0;
+
+  Object.keys(replies).forEach(id => {
+    const r = replies[id];
+    const to = (r.email || '').trim();
+    if (to.indexOf('@') === -1) return;                // a phone number, not an address
+
+    const going = r.people.filter(p => p.attending);
+    if (!going.length) return;
+
+    MailApp.sendEmail(to,
+      days === 30 ? 'One month until the wedding' : 'One week until the wedding',
+      'We cannot wait to see you.\n\n' +
+      'Saturday, June 19th 2027\n' +
+      'Surprise Valley Eagle Christian Church, 4601 S Surprise Way, Boise\n' +
+      'Doors from 3:30pm, ceremony at 4:00pm.\n\n' +
+      'We have you down for:\n' +
+      going.map(p => '  ' + p.name + ': ' + partsOf(p)).join('\n') +
+      '\n\nNeed to change anything? Reply to your invitation on the website, ' +
+      'or text us on (208) 963-1581.\n\nLogan & Mary Lou');
+    count++;
+  });
+
+  sent.setProperty('reminder_' + stage, new Date().toISOString());
+  if (NOTIFY) MailApp.sendEmail(NOTIFY, stage + ' reminders sent', count + ' emails went out.');
+}
+```
+
+Set it running: **Triggers** (the clock icon) → **Add trigger** →
+`sendReminders`, time-driven, day timer, early morning. It costs nothing
+on the days that aren't reminder days, and the script property stops a
+second run from mailing anyone twice.
+
+Guests who gave a phone number instead of an address are skipped — see
+below.
+
+### Texting
+
+There is no free way to send SMS from Apps Script. The options:
+
+- **Twilio.** About $0.008 a message plus roughly $1.15 a month for a
+  number, so around $3 for 150 guests reminded twice. US carriers now
+  require A2P 10DLC registration before you can send — a form, a small
+  fee, and a few days. This is the option that actually works.
+- **Carrier email-to-SMS gateways** (`5551234567@vtext.com` and the
+  like). Free, but you need to know each guest's carrier, and the
+  carriers have been shutting these down. Not worth relying on for
+  something that only gets one chance.
+
+Worth deciding in spring 2027, not now. The numbers are being collected
+either way, and nothing about the site has to change to start using them.
 
 ## Deploying
 
@@ -412,7 +498,7 @@ Open the `/exec` URL in a browser with a real guest's name on the end:
 
 You should see JSON, starting with a version number:
 
-    {"version":5,"parties":[...]}
+    {"version":6,"parties":[...]}
 
 **If `version` is missing or lower than the number at the top of the
 script, the deployment is running old code.** Nothing else in this
@@ -429,6 +515,8 @@ Once the version matches, what's in the rest tells you what is wrong:
 - **`"reply":null` for a household that has already replied** — either
   the script hasn't been redeployed, or `party_id` in `Replies` doesn't
   match `id` in `Guests`.
+- **`ceremony` / `reception` missing from a reply** — the two columns
+  aren't on the `Replies` tab yet.
 - **No `reply` key at all** — the old script is still live. Redeploy.
 
 ## Known limits
